@@ -1,2 +1,4 @@
 # Kezbot
-A Telegram bot using the Python-Telegram-Bot wrapper
+A Telegram bot that provides Spotify-URLs from Youtube-links
+
+Work in progress.
