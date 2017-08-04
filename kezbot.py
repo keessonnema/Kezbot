@@ -19,11 +19,8 @@ import requests
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from config import Config
 
-# spotipy stuff
-api = Config.YOUTUBE_API_KEY
-
-
 def getify(bot, update, args):
+    api = Config.YOUTUBE_API_KEY # Youtube API
     getify_link = args[0]
     pattern = r'(?:https?:\/\/)?(?:[0-9A-Z-]+\.)?(?:youtube|youtu|youtube-nocookie)\.(?:com|be)\/(?:watch\?v=|watch\?.+&v=|embed\/|v\/|.+\?v=)?([^&=\n%\?]{11})'
     result = ' '.join(re.findall(pattern, getify_link, re.MULTILINE | re.IGNORECASE))
@@ -38,8 +35,8 @@ def getify(bot, update, args):
 
     title = json['items'][0]['snippet']['title']
     result = re.sub("[\(\[].*?[\)\]]", "", title)
-    update.effective_message.reply_text("You've searched for: "
-                                        "{0}. "
+    update.effective_message.reply_text("You've searched for: \n"
+                                        "{0}. \n\n"
                                         "Let me find it on Spotify!" .format(result))
 
     client_id = 'cdd44100bf3c4d9fa383721521bec613'
