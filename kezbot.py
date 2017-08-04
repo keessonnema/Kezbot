@@ -39,8 +39,8 @@ def getify(bot, update, args):
                                         "{0}. \n\n"
                                         "Let me find it on Spotify!" .format(result))
 
-    client_id = 'cdd44100bf3c4d9fa383721521bec613'
-    client_secret = '1b3e855446e64739a4950b894b237b4d'
+    client_id = Config.SPOT_CLIENT_ID
+    client_secret = Config.SPOT_CLIENT_SECRET
     redirect_uri = 'http://localhost:8000/callback/'
 
     os.environ["SPOTIPY_CLIENT_ID"] = client_id
