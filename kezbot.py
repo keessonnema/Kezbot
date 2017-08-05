@@ -36,10 +36,10 @@ def getify(bot, update, args):
     pattern = re.compile("\\b(Official|Video|Mix|Music|ft.)\\W", re.I) #Remove these words from the title
     result2 = pattern.sub("", title)
     result = re.sub(remb, '', result2)
-
     update.effective_message.reply_text("You've searched for: \n{0}. \n\nLet me find it on Spotify!" .format(title))
 
     stripped = result.split(" - ")
+    newlist = list(filter(None, stripped))
 
     # Spotify credentials
     os.environ["SPOTIPY_CLIENT_ID"] = Config.SPOT_CLIENT_ID
@@ -52,8 +52,8 @@ def getify(bot, update, args):
 
     if token:
         sp = spotipy.Spotify(auth=token)
-        artist = stripped[0]
-        track = stripped[1]
+        artist = newlist[0]
+        track = newlist[1]
 
         results = sp.search(q="artist:{} track:{}".format(artist, track, limit=1))
 
