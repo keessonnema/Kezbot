@@ -31,16 +31,19 @@ def getify(bot, update, args):
     url = "https://www.googleapis.com/youtube/v3/videos?part=snippet&id={0}&key={1}".format(id, api)
     json = simplejson.load(urllib.request.urlopen(url))
 
+    # Extract and split from string to widen search.
     remb = r'\[[^\]]*\]'  # Remove square brackets + content from title
     title = json['items'][0]['snippet']['title']  # get title from Youtube
-    pattern = re.compile("\\b(Official|Video|Mix|Music|ft.|HQ|version|HD)\\W", re.I) #Remove these words from the title
-    result2 = pattern.sub("", title)
-    result = re.sub(remb, '', result2)
+    pattern = re.compile("\\b(Official|Video|Mix|Music|ft.|HQ|version|HD|Original|12\")\\W", re.I) #Remove these words from the title
+    result = pattern.sub("", title)
+    result2 = re.sub(remb, '', result)
+    result3 = re.sub(r'\(\d+\)', '', result2)
     update.effective_message.reply_text("You've searched for: \n{0}. \n\nLet me find it on Spotify!" .format(title))
 
-    stripped = result.split(" - ")
+    stripped = result3.split(" - ")
     newlist = list(filter(None, stripped))
 
+    print(newlist)
     # Spotify credentials
     os.environ["SPOTIPY_CLIENT_ID"] = Config.SPOT_CLIENT_ID
     os.environ["SPOTIPY_CLIENT_SECRET"] = Config.SPOT_CLIENT_SECRET
@@ -67,7 +70,8 @@ def getify(bot, update, args):
                 spoturl = spotracks[0]['external_urls']['spotify']
                 update.effective_message.reply_text("► {0} - {1} {2}".format(spotartist, spotitle, spoturl))
             else:
-                update.effective_message.reply_text("I can't find this track on Spotify :( Try a different link or search for another song.")
+                update.effective_message.reply_text("I can't find this track on Spotify :( "
+                                                    "Try a different link or search for another song.")
         else:
             update.effective_message.reply_text("This is not a song. Try some music :)")
 
@@ -79,16 +83,14 @@ owner_id = int(Config.OWNER_ID) # Telegram user ID
 
 
 def start(bot, update):
-    update.effective_message.reply_text("Hello {}. I'm KezBot. What can I do for you?".format(update.message.from_user.first_name))
+    update.effective_message.reply_text(
+        "Hello {}. I'm KezBot. Send me a Youtube-link "
+        "(/getify <youtube-url>) and I'll give you a Spotify-URL to that song!".format(update.message.from_user.first_name))
 
 
 def hello(bot, update):
     update.effective_message.reply_text(
         'Hello {}'.format(update.message.from_user.first_name))
-
-
-def simao(bot, update):
-    update.effective_message.reply_text("He sucks at just about everything!")
 
 
 def hardtraxx(bot, update):
@@ -123,7 +125,6 @@ def main():
     updater.dispatcher.add_handler(CommandHandler("getify", getify, pass_args=True))
     updater.dispatcher.add_handler(CommandHandler('start', start))
     updater.dispatcher.add_handler(CommandHandler('hello', hello))
-    updater.dispatcher.add_handler(CommandHandler('simao', simao))
     updater.dispatcher.add_handler(CommandHandler('hardtraxx', hardtraxx))
     updater.dispatcher.add_handler(CommandHandler("ip", ip))
     updater.dispatcher.add_handler(CommandHandler("id", getid))
