@@ -33,7 +33,7 @@ def getify(bot, update, args):
 
     remb = r'\[[^\]]*\]'  # Remove square brackets + content from title
     title = json['items'][0]['snippet']['title']  # get title from Youtube
-    pattern = re.compile("\\b(Official|Video|Mix|Music|ft.)\\W", re.I) #Remove these words from the title
+    pattern = re.compile("\\b(Official|Video|Mix|Music|ft.|HQ|version)\\W", re.I) #Remove these words from the title
     result2 = pattern.sub("", title)
     result = re.sub(remb, '', result2)
     update.effective_message.reply_text("You've searched for: \n{0}. \n\nLet me find it on Spotify!" .format(title))
@@ -57,12 +57,12 @@ def getify(bot, update, args):
 
         results = sp.search(q="artist:{} track:{}".format(artist, track, limit=1))
 
-        if result:
+        if results:
             spotitle = results['tracks']['items'][0]['name']
             spoturl = results['tracks']['items'][0]['external_urls']['spotify']
             update.effective_message.reply_text("{0} {1}".format(spotitle, spoturl))
         else:
-            update.effective_message.reply_text("I can't find this track on Spotify :(")
+            update.effective_message.reply_text("I can't find this track on Spotify!")
     else:
         print("There's something wrong with the token")
 
