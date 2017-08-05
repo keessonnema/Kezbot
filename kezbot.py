@@ -57,12 +57,16 @@ def getify(bot, update, args):
 
         results = sp.search(q="artist:{} track:{}".format(artist, track, limit=1))
 
-        if result:
-            spotitle = results['tracks']['items'][0]['name']
-            spoturl = results['tracks']['items'][0]['external_urls']['spotify']
-            update.effective_message.reply_text("{0} {1}".format(spotitle, spoturl))
+        if results: # SEE THIS S?
+            spotracks = results['tracks']['items']
+            if spottracks:
+                spotitle = spotracks[0]['name']
+                spoturl = spotracks[0]['external_urls']['spotify']
+                update.effective_message.reply_text("{0} {1}".format(spotitle, spoturl))
+            else:
+                update.effective_message.reply_text("I can't find this track on Spotify :("
         else:
-            update.effective_message.reply_text("I can't find this track on Spotify :(")
+            update.effective_message.reply_text("Wait, what? got no result :/")
     else:
         print("There's something wrong with the token")
 
