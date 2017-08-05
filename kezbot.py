@@ -19,45 +19,45 @@ import requests
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from config import Config
 
+
 def getify(bot, update, args):
+
     api = Config.YOUTUBE_API_KEY # Youtube API
     getify_link = args[0]
     pattern = r'(?:https?:\/\/)?(?:[0-9A-Z-]+\.)?(?:youtube|youtu|youtube-nocookie)\.(?:com|be)\/(?:watch\?v=|watch\?.+&v=|embed\/|v\/|.+\?v=)?([^&=\n%\?]{11})'
     result = ' '.join(re.findall(pattern, getify_link, re.MULTILINE | re.IGNORECASE))
 
-    print(result)
-
     id = result
     url = "https://www.googleapis.com/youtube/v3/videos?part=snippet&id={0}&key={1}".format(id, api)
-
-    print(url)
     json = simplejson.load(urllib.request.urlopen(url))
 
-    title = json['items'][0]['snippet']['title']
-    result = re.sub("[\(\[].*?[\)\]]", "", title)
-    update.effective_message.reply_text("You've searched for: \n"
-                                        "{0}. \n\n"
-                                        "Let me find it on Spotify!" .format(result))
+    remb = r'\[[^\]]*\]'  # Remove square brackets + content from title
+    title = json['items'][0]['snippet']['title']  # get title from Youtube
+    pattern = re.compile("\\b(Official|Video|Mix|Music|ft.)\\W", re.I) #Remove these words from the title
+    result2 = pattern.sub("", title)
+    result = re.sub(remb, '', result2)
 
-    client_id = Config.SPOT_CLIENT_ID
-    client_secret = Config.SPOT_CLIENT_SECRET
-    redirect_uri = 'http://localhost:8000/callback/'
+    update.effective_message.reply_text("You've searched for: \n{0}. \n\nLet me find it on Spotify!" .format(title))
 
-    os.environ["SPOTIPY_CLIENT_ID"] = client_id
-    os.environ["SPOTIPY_CLIENT_SECRET"] = client_secret
-    os.environ["SPOTIPY_REDIRECT_URI"] = redirect_uri
+    stripped = result.split(" - ")
 
-    username = 'keessonnema'
-    scope = 'user-read-private'
+    # Spotify credentials
+    os.environ["SPOTIPY_CLIENT_ID"] = Config.SPOT_CLIENT_ID
+    os.environ["SPOTIPY_CLIENT_SECRET"] = Config.SPOT_CLIENT_SECRET
+    os.environ["SPOTIPY_REDIRECT_URI"] = Config.SPOT_REDIRECT_URI
+
+    username = Config.SPOT_USERNAME
+    scope = Config.SPOT_SCOPE
     token = util.prompt_for_user_token(username, scope)
 
     if token:
         sp = spotipy.Spotify(auth=token)
-        results = sp.search(q=result, type='track', limit=1)
-        pp = pprint.PrettyPrinter(indent=4)
-#        pp.pprint(results)
-#        quit()
-        if results:
+        artist = stripped[0]
+        track = stripped[1]
+
+        results = sp.search(q="artist:{} track:{}".format(artist, track, limit=1))
+
+        if result:
             spotitle = results['tracks']['items'][0]['name']
             spoturl = results['tracks']['items'][0]['external_urls']['spotify']
             update.effective_message.reply_text("{0} {1}".format(spotitle, spoturl))
@@ -67,8 +67,7 @@ def getify(bot, update, args):
         print("There's something wrong with the token")
 
 # basic bot commands
-
-owner_id = int(Config.OWNER_ID)
+owner_id = int(Config.OWNER_ID) # Telegram user ID
 
 
 def start(bot, update):
@@ -110,12 +109,10 @@ def getid(bot, update):
 def main():
     logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                         level=logging.INFO)
-
     token = Config.API_KEY
     updater = Updater(token)
 
     updater.dispatcher.add_handler(CommandHandler("getify", getify, pass_args=True))
-
     updater.dispatcher.add_handler(CommandHandler('start', start))
     updater.dispatcher.add_handler(CommandHandler('hello', hello))
     updater.dispatcher.add_handler(CommandHandler('simao', simao))
