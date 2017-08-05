@@ -33,7 +33,7 @@ def getify(bot, update, args):
 
     remb = r'\[[^\]]*\]'  # Remove square brackets + content from title
     title = json['items'][0]['snippet']['title']  # get title from Youtube
-    pattern = re.compile("\\b(Official|Video|Mix|Music|ft.|HQ|version)\\W", re.I) #Remove these words from the title
+    pattern = re.compile("\\b(Official|Video|Mix|Music|ft.|HQ|version|HD)\\W", re.I) #Remove these words from the title
     result2 = pattern.sub("", title)
     result = re.sub(remb, '', result2)
     update.effective_message.reply_text("You've searched for: \n{0}. \n\nLet me find it on Spotify!" .format(title))
@@ -56,26 +56,21 @@ def getify(bot, update, args):
         track = newlist[1]
 
         results = sp.search(q="artist:{} track:{}".format(artist, track, limit=1))
+#        pp = pprint.PrettyPrinter(indent=4)
+#        pp.pprint(results)
 
-<<<<<<< HEAD
         if results:
-            spotitle = results['tracks']['items'][0]['name']
-            spoturl = results['tracks']['items'][0]['external_urls']['spotify']
-            update.effective_message.reply_text("{0} {1}".format(spotitle, spoturl))
-        else:
-            update.effective_message.reply_text("I can't find this track on Spotify!")
-=======
-        if results: # SEE THIS S?
             spotracks = results['tracks']['items']
-            if spottracks:
+            if spotracks:
+                spotartist = spotracks[0]['artists'][0]['name']
                 spotitle = spotracks[0]['name']
                 spoturl = spotracks[0]['external_urls']['spotify']
-                update.effective_message.reply_text("{0} {1}".format(spotitle, spoturl))
+                update.effective_message.reply_text("► {0} - {1} {2}".format(spotartist, spotitle, spoturl))
             else:
-                update.effective_message.reply_text("I can't find this track on Spotify :("
+                update.effective_message.reply_text("I can't find this track on Spotify :( Try a different link or search for another song.")
         else:
-            update.effective_message.reply_text("Wait, what? got no result :/")
->>>>>>> 6c0dc1c38b17c1edbedf542cdefe74d9e20a552a
+            update.effective_message.reply_text("This is not a song. Try some music :)")
+
     else:
         print("There's something wrong with the token")
 
