@@ -1,0 +1,4 @@
+spotipy
+simplejson
+requests
+python-telegram-bot
