@@ -37,12 +37,13 @@ def getify(bot, update, args):
             json = simplejson.load(urllib.request.urlopen(url))
 
             # Extract and split from string to widen search.
-            remb = r'\[[^\]]*\]'  # Remove square brackets + content from title
             title = json['items'][0]['snippet']['title']  # get title from Youtube
             # Remove these words from the title
-            pattern = re.compile("\\b(Official|Video|Mix|Music|ft.|HQ|version|HD|Original|12\"|Extended)\\W", re.I)
-            result = pattern.sub("", title)
-            result2 = re.sub(remb, '', result)
+            re1 = r'\[[^\]]*\]'  # Remove square brackets + content from title
+            re2 = re.compile("\\b(Official|Video|Mix|Music|ft.|feat.|HQ|version|HD|Original|12\"|Extended|Meets)"
+                                 "\\W", re.I)
+            result = re2.sub("", title)
+            result2 = re.sub(re1, '', result)
             result3 = re.sub(r'\(\d+\)', '', result2)
             update.effective_message.reply_text("You've searched for: \n{0}. \n\nLet me find it on Spotify!" .format(title))
 
