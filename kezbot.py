@@ -1,54 +1,52 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import subprocess
-import configparser
-import requests
-import pprint
-import strings
-import os
-import time
-import sys
 import logging
+import os
+import re
+import urllib.error
+import urllib.request
+
+import requests
+import simplejson
 import spotipy
 import spotipy.util as util
-import urllib.request, urllib.error
-import simplejson
-import re
-import requests
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from config import Config
+from telegram.ext import Updater, CommandHandler
+
+import strings
+
+OWNER_ID = int(Config.OWNER_ID)  # Telegram user ID
 
 
 def getify(bot, update, args):
-    global getify_link
-    api = Config.YOUTUBE_API_KEY # Youtube API
+    api = Config.YOUTUBE_API_KEY  # Youtube API
     if len(args) == 0:
-        update.effective_message.reply_text("You forgot to give me a Youtube-url! \nTry again with: /getify <youtube-url>.")
+        update.effective_message.reply_text("You forgot to give me a Youtube-url! \nTry again with: /getify "
+                                            "<youtube-url>.")
         print("args are empty.")
     else:
         getify_link = args[0]
         pattern = r'(?:https?:\/\/)?(?:[0-9A-Z-]+\.)?(?:youtube|youtu|youtube-nocookie)\.(?:com|be)\/(?:watch\?v=|watch\?.+&v=|embed\/|v\/|.+\?v=)?([^&=\n%\?]{11})'
-        result = ' '.join(re.findall(pattern, getify_link, re.MULTILINE | re.IGNORECASE))
-        if not result:
+        video_id = ' '.join(re.findall(pattern, getify_link, re.MULTILINE | re.IGNORECASE))
+        if not video_id:
             update.effective_message.reply_text("This is not a Youtube-url! \nTry again with: /getify <youtube-url>.")
             print("This is not a Youtube-url.")
         else:
-            id = result
-            url = "https://www.googleapis.com/youtube/v3/videos?part=snippet&id={0}&key={1}".format(id, api)
+            url = "https://www.googleapis.com/youtube/v3/videos?part=snippet&id={0}&key={1}".format(video_id, api)
             json = simplejson.load(urllib.request.urlopen(url))
 
             # Extract and split from string to widen search.
             remb = r'\[[^\]]*\]'  # Remove square brackets + content from title
             title = json['items'][0]['snippet']['title']  # get title from Youtube
-            pattern = re.compile("\\b(Official|Video|Mix|Music|ft.|HQ|version|HD|Original|12\"|Extended)\\W", re.I) #Remove these words from the title
+            # Remove these words from the title
+            pattern = re.compile("\\b(Official|Video|Mix|Music|ft.|HQ|version|HD|Original|12\"|Extended)\\W", re.I)
             result = pattern.sub("", title)
             result2 = re.sub(remb, '', result)
             result3 = re.sub(r'\(\d+\)', '', result2)
             update.effective_message.reply_text("You've searched for: \n{0}. \n\nLet me find it on Spotify!" .format(title))
 
-            stripped = result3.split(" - ")
-            newlist = list(filter(None, stripped))
+            newlist = list(filter(None, result3.split(" - ")))  # split on '-', and ignore empty strings
             print(newlist)
 
             # Spotify credentials
@@ -61,13 +59,11 @@ def getify(bot, update, args):
             token = util.prompt_for_user_token(username, scope)
 
             if token:
-                sp = spotipy.Spotify(auth=token)
+                spot = spotipy.Spotify(auth=token)
                 artist = newlist[0]
                 track = newlist[1]
 
-                results = sp.search(q="artist:{} track:{}".format(artist, track, limit=1))
-        #        pp = pprint.PrettyPrinter(indent=4)
-        #        pp.pprint(results)
+                results = spot.search(q="artist:{} track:{}".format(artist, track, limit=1))
 
                 if results:
                     spotracks = results['tracks']['items']
@@ -85,10 +81,8 @@ def getify(bot, update, args):
             else:
                 print("There's something wrong with the token")
 
+
 # basic bot commands
-owner_id = int(Config.OWNER_ID) # Telegram user ID
-
-
 def start(bot, update):
     update.effective_message.reply_text(
         "Hello {}. I'm KezBot. Send me a Youtube-link "
@@ -104,18 +98,18 @@ def hardtraxx(bot, update):
     update.effective_message.reply_text("Hardstylboy was here!!!")
 
 
-def ip(bot, update):
+def get_ip(bot, update):
     sender = update.message.from_user
 
-    if sender.id == owner_id:
+    if sender.id == OWNER_ID:
         res = requests.get("http://ipinfo.io/ip")
-        ip = res.text
-        update.effective_message.reply_text("The server's IP is " + ip)
+        ip_addr = res.text
+        update.effective_message.reply_text("The server's IP is " + ip_addr)
     else:
         update.effective_message.reply_text(strings.stringAdminOnly)
 
 
-def getid(bot, update):
+def get_id(bot, update):
     sender = update.message.from_user
 
     sender_id = str(sender.id)
@@ -133,8 +127,8 @@ def main():
     updater.dispatcher.add_handler(CommandHandler('start', start))
     updater.dispatcher.add_handler(CommandHandler('hello', hello))
     updater.dispatcher.add_handler(CommandHandler('hardtraxx', hardtraxx))
-    updater.dispatcher.add_handler(CommandHandler("ip", ip))
-    updater.dispatcher.add_handler(CommandHandler("id", getid))
+    updater.dispatcher.add_handler(CommandHandler("ip", get_ip))
+    updater.dispatcher.add_handler(CommandHandler("id", get_id))
 
     updater.start_polling()
     updater.idle()
