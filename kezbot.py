@@ -6,7 +6,7 @@ import os
 import re
 import urllib.error
 import urllib.request
-
+import pprint
 import requests
 import simplejson
 import spotipy
@@ -27,7 +27,8 @@ def getify(bot, update, args):
         print("args are empty.")
     else:
         getify_link = args[0]
-        pattern = r'(?:https?:\/\/)?(?:[0-9A-Z-]+\.)?(?:youtube|youtu|youtube-nocookie)\.(?:com|be)\/(?:watch\?v=|watch\?.+&v=|embed\/|v\/|.+\?v=)?([^&=\n%\?]{11})'
+        pattern = r'(?:https?:\/\/)?(?:[0-9A-Z-]+\.)?(?:youtube|youtu|youtube-nocookie)\.' \
+                  r'(?:com|be)\/(?:watch\?v=|watch\?.+&v=|embed\/|v\/|.+\?v=)?([^&=\n%\?]{11})'
         video_id = ' '.join(re.findall(pattern, getify_link, re.MULTILINE | re.IGNORECASE))
         if not video_id:
             update.effective_message.reply_text("This is not a Youtube-url! \nTry again with: /getify <youtube-url>.")
@@ -38,17 +39,18 @@ def getify(bot, update, args):
 
             # Extract and split from string to widen search.
             title = json['items'][0]['snippet']['title']  # get title from Youtube
-            # Remove these words from the title
-            re1 = r'\[[^\]]*\]'  # Remove square brackets + content from title
-            re2 = re.compile("\\b(Official|Video|Mix|Music|ft.|feat.|HQ|version|HD|Original|12\"|Extended|Meets)"
-                                 "\\W", re.I)
-            result = re2.sub("", title)
-            result2 = re.sub(re1, '', result)
-            result3 = re.sub(r'\(\d+\)', '', result2)
-            update.effective_message.reply_text("You've searched for: \n{0}. \n\nLet me find it on Spotify!" .format(title))
+            update.effective_message.reply_text("You've searched for: \n♫ {0}. \n\nLet me find it on Spotify!"
+                                                .format(title))
+            # Remove words, square brackets, dots, other characters
+            result = re.compile("\\b(Official|Video|Videoclip|Mix|Music|ft|feat|HQ|version|HD|Original"
+                                "|Extended|Meets|12\"|lyrics|Lyrics|International)\\W", re.I)
+            result = result.sub("", title)
+            result = re.sub(r'\[[^\]]*\]', '', result)
+            result = re.sub(r'[.]', ' ', result)
+            result = re.sub(r'\(\d+\)', '', result)
+            result = re.sub(r'“.*?”', '', result)
 
-            newlist = list(filter(None, result3.split(" - ")))  # split on '-', and ignore empty strings
-            print(newlist)
+            newlist = list(filter(None, result.split(' - ')))  # split on '-', and ignore empty strings
 
             # Spotify credentials
             os.environ["SPOTIPY_CLIENT_ID"] = Config.SPOT_CLIENT_ID
@@ -67,14 +69,22 @@ def getify(bot, update, args):
                 results = spot.search(q="artist:{} track:{}".format(artist, track, limit=1))
 
                 if results:
-                    spotracks = results['tracks']['items']
-                    if spotracks:
-                        spotartist = spotracks[0]['artists'][0]['name']
-                        spotitle = spotracks[0]['name']
-                        spoturl = spotracks[0]['external_urls']['spotify']
+                    spottracks = results['tracks']['items']
+                    if spottracks:
+                        spotartist = spottracks[0]['artists'][0]['name']
+                        spotitle = spottracks[0]['name']
+                        spoturl = spottracks[0]['external_urls']['spotify']
                         update.effective_message.reply_text("► {0} - {1} {2}".format(spotartist, spotitle, spoturl))
                     else:
-                        update.effective_message.reply_text("I can't find this track on Spotify :( "
+                        results = spot.search(q="artist:{} track:{}".format(track, artist, limit=1))
+                        spottracks = results['tracks']['items']
+                        if spottracks:
+                            spotartist = spottracks[0]['artists'][0]['name']
+                            spotitle = spottracks[0]['name']
+                            spoturl = spottracks[0]['external_urls']['spotify']
+                            update.effective_message.reply_text("► {0} - {1} {2}".format(spotartist, spotitle, spoturl))
+                        else:
+                            update.effective_message.reply_text("I can't find this track on Spotify :( "
                                                             "Try a different link or search for another song.")
                 else:
                     update.effective_message.reply_text("This is not a song. Try some music :)")
@@ -87,7 +97,8 @@ def getify(bot, update, args):
 def start(bot, update):
     update.effective_message.reply_text(
         "Hello {}. I'm KezBot. Send me a Youtube-link "
-        "(/getify <youtube-url>) and I'll give you a Spotify-URL to that song!".format(update.message.from_user.first_name))
+        "(/getify <youtube-url>) and I'll give you a Spotify-URL to that song!"
+            .format(update.message.from_user.first_name))
 
 
 def hello(bot, update):
