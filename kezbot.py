@@ -13,11 +13,8 @@ import spotipy
 import spotipy.util as util
 from config import Config
 from telegram.ext import Updater, CommandHandler
-import pip
 
 import strings
-
-print(sorted(["%s==%s" % (i.key, i.version) for i in pip.get_installed_distributions()]))
 
 OWNER_ID = int(Config.OWNER_ID)  # Telegram user ID
 
@@ -27,7 +24,6 @@ def getify(bot, update, args):
     if len(args) == 0:
         update.effective_message.reply_text("You forgot to give me a Youtube-url! \nTry again with: /getify "
                                             "<youtube-url>.")
-        print("args are empty.")
     else:
         getify_link = args[0]
         pattern = r'(?:https?:\/\/)?(?:[0-9A-Z-]+\.)?(?:youtube|youtu|youtube-nocookie)\.' \
@@ -46,7 +42,7 @@ def getify(bot, update, args):
                                                 .format(title))
             # Remove words, square brackets, dots, other characters
             result = re.compile("\\b(Official|Video|Videoclip|Mix|Music|ft|feat|HQ|version|HD|Original"
-                                "|Extended|Meets|12\"|lyrics|Lyrics|International)\\W", re.I)
+                                "|Extended|Unextended|Meets|12\"|Rmx|lyrics|Lyrics|International|1080p)\\W", re.I)
             result = result.sub("", title)
             result = re.sub(r'\[[^\]]*\]', '', result)
             result = re.sub(r'[.]', ' ', result)
@@ -54,7 +50,8 @@ def getify(bot, update, args):
             result = re.sub(r'“.*?”', '', result)
             result = re.sub(r'&', '', result)
 
-            newlist = list(filter(None, result.split(' - ')))  # split on '-', and ignore empty strings
+            newlist = list(filter(None, re.split(' - | -|- |-', result)))  # split on '-', and ignore empty strings
+            print(newlist)
 
             # Spotify credentials
             os.environ["SPOTIPY_CLIENT_ID"] = Config.SPOT_CLIENT_ID
