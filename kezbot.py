@@ -8,7 +8,7 @@ import urllib.error
 import urllib.request
 import pprint
 import requests
-import simplejson
+import json as simplejson
 import spotipy
 import spotipy.util as util
 from config import Config
@@ -49,6 +49,7 @@ def getify(bot, update, args):
             result = re.sub(r'[.]', ' ', result)
             result = re.sub(r'\(\d+\)', '', result)
             result = re.sub(r'“.*?”', '', result)
+            result = re.sub(r'&', '', result)
 
             newlist = list(filter(None, result.split(' - ')))  # split on '-', and ignore empty strings
 
