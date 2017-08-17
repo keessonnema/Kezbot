@@ -8,13 +8,16 @@ import urllib.error
 import urllib.request
 import pprint
 import requests
-import json as simplejson
+import simplejson
 import spotipy
 import spotipy.util as util
 from config import Config
 from telegram.ext import Updater, CommandHandler
+import pip
 
 import strings
+
+print(sorted(["%s==%s" % (i.key, i.version) for i in pip.get_installed_distributions()]))
 
 OWNER_ID = int(Config.OWNER_ID)  # Telegram user ID
 
