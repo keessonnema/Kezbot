@@ -13,6 +13,7 @@ import spotipy.util as util
 from config import Config
 from telegram.ext import Updater, CommandHandler, MessageHandler, RegexHandler, Filters
 from telegram.ext.dispatcher import run_async
+from strings import YoutubePattern, MatchPattern, RemoveWords
 from custom_filters import UrlFilter
 import strings
 
@@ -24,13 +25,12 @@ def get_url(bot, update):
     api = Config.YOUTUBE_API_KEY  # Youtube API
 
     url = update.effective_message.text
-    pattern = '([a-z]+?:\/\/)*([a-z]*?[.])*youtu([.]be|be[.][a-z]+?)\/((watch[?]v=|v)*).+'
+    pattern = MatchPattern
 
     if re.match(pattern, url, re.I):
         get_link = update.effective_message
         yt_link = get_link['text']
-        pattern = r'(?:https?:\/\/)?(?:[0-9A-Z-]+\.)?(?:youtube|youtu|youtube-nocookie)\.' \
-                  r'(?:com|be)\/(?:watch\?v=|watch\?.+&v=|embed\/|v\/|.+\?v=)?([^&=\n%\?]{11})'
+        pattern = YoutubePattern
         video_id = ' '.join(re.findall(pattern, yt_link, re.MULTILINE | re.IGNORECASE))
 
         if not video_id:
@@ -49,9 +49,7 @@ def get_url(bot, update):
                 update.effective_message.reply_text("You've searched for: \n♫ {0}. \n\nLet me find it on Spotify!"
                                                         .format(title))
 
-                result = re.compile("\\b(official|videoclip|clip|video|mix|ft|feat|music|HQ|version|HD|original"
-                                        "|extended|unextended|vs|meets|anthem|12\"|rmx|lyrics|international|1080p)"
-                                    "\\b", re.I)
+                result = re.compile(RemoveWords, re.I)
                 result = result.sub("", title).strip()
                 result = re.sub(r'\[[^\]]*\]|\(\d+\)|“.*?”|".*?"|[.]|[&]|[,]|(#[A-Za-z0-9]+)', '', result).strip()
 
@@ -112,8 +110,7 @@ def getify(bot, update, args):
                                             "<youtube-url>.")
     else:
         getify_link = args[0]
-        pattern = r'(?:https?:\/\/)?(?:[0-9A-Z-]+\.)?(?:youtube|youtu|youtube-nocookie)\.' \
-                  r'(?:com|be)\/(?:watch\?v=|watch\?.+&v=|embed\/|v\/|.+\?v=)?([^&=\n%\?]{11})'
+        pattern = YoutubePattern
         video_id = ' '.join(re.findall(pattern, getify_link, re.MULTILINE | re.IGNORECASE))
         if not video_id:
             update.effective_message.reply_text("This is not a Youtube-url! \nTry again with: /getify <youtube-url>.")
@@ -127,8 +124,7 @@ def getify(bot, update, args):
             update.effective_message.reply_text("You've searched for: \n♫ {0}. \n\nLet me find it on Spotify!"
                                                 .format(title))
             # Remove words, square brackets, dots, other characters
-            result = re.compile("\\b(official|videoclip|clip|video|mix|ft|feat|music|HQ|version|HD|original"
-                                "|extended|unextended|vs|meets|anthem|12\"|rmx|lyrics|international|1080p)\\b", re.I)
+            result = re.compile(RemoveWords, re.I)
             result = result.sub("", title).strip()
             result = re.sub(r'\[[^\]]*\]|\(\d+\)|“.*?”|[.]|[&]|[,]|(#[A-Za-z0-9]+)', '', result).strip()
 

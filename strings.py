@@ -1,14 +1,5 @@
-errorMessage = "An error occured. Please contact @keessonnema.nl."
-errorTimeout = "A timeout error has occured."
-errorUnknownCommand = "What? I don't know that command."
-errorNoFile = "File missing!"
-errorCommand = "Unknown command."
-errBadFormat = "Wrong format."
-errNoNoteFound = "This note does not exist."
-
-
-stringHelp = "Type /help for a list of commands."
-stringAdminOnly = "You're not an admin!"
-
-help_message = "\n/help - shows this message"
-help_id = "\n/id - Show's your ID"
+MatchPattern = '([a-z]+?:\/\/)*([a-z]*?[.])*youtu([.]be|be[.][a-z]+?)\/((watch[?]v=|v)*).+'
+YoutubePattern = r'(?:https?:\/\/)?(?:[0-9A-Z-]+\.)?(?:youtube|youtu|youtube-nocookie)\.' \
+                  r'(?:com|be)\/(?:watch\?v=|watch\?.+&v=|embed\/|v\/|.+\?v=)?([^&=\n%\?]{11})'
+RemoveWords = "\\b(official|videoclip|clip|video|mix|ft|feat|music|HQ|version|HD|original|extended|" \
+              "unextended|vs|meets|anthem|12\"|rmx|lyrics|international|1080p)\\b"
