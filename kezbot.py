@@ -23,9 +23,10 @@ OWNER_ID = int(Config.OWNER_ID)  # Telegram user ID
 def get_url(bot, update):
     api = Config.YOUTUBE_API_KEY  # Youtube API
 
-    if update == 0:
-        update.effective_message.reply_text("You forgot to give me a Youtube-url! \nTry again.")
-    else:
+    url = update.effective_message.text
+    pattern = '([a-z]+?:\/\/)*([a-z]*?[.])*youtu([.]be|be[.][a-z]+?)\/((watch[?]v=|v)*).+'
+
+    if re.match(pattern, url, re.I):
         get_link = update.effective_message
         yt_link = get_link['text']
         pattern = r'(?:https?:\/\/)?(?:[0-9A-Z-]+\.)?(?:youtube|youtu|youtube-nocookie)\.' \
@@ -220,7 +221,7 @@ def main():
     token = Config.API_KEY
     updater = Updater(token)
 
-    updater.dispatcher.add_handler(MessageHandler(Filters.text & UrlFilter, get_url))
+    updater.dispatcher.add_handler(MessageHandler(Filters.text, get_url))
     #updater.dispatcher.add_handler(CommandHandler("getify", getify, pass_args=True))
     updater.dispatcher.add_handler(CommandHandler('start', start))
     updater.dispatcher.add_handler(CommandHandler('hello', hello))
