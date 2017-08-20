@@ -3,6 +3,9 @@
 
 import logging
 import re
+from random import randint
+from time import sleep
+import requests
 import urllib.error
 import urllib.request
 import simplejson
@@ -11,7 +14,7 @@ import spotipy.util as util
 from config import Config
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from telegram.ext.dispatcher import run_async
-from strings import YoutubePattern, MatchPattern, RemoveWords, StringRegex
+from strings import YoutubePattern, MatchPattern, RemoveWords, StringRegex, run_strings
 
 OWNER_ID = int(Config.OWNER_ID)  # Telegram user ID
 
@@ -96,10 +99,24 @@ def start(bot, update):
         .format(update.message.from_user.first_name))
 
 
+@run_async
+def runs(bot, update):
+    sleep(3)
+    start_running = randint(0, len(run_strings)-1)
+    update.effective_message.reply_text(run_strings[start_running])
+
+
 def get_id(bot, update):
     sender = update.message.from_user
     sender_id = str(sender.id)
     update.effective_message.reply_text("Your ID is " + sender_id)
+
+
+def get_ip(bot, update):  # get bot ip
+    sender = update.message.from_user
+    if sender.id == 18673980:
+        ip = requests.get("http://ipinfo.io/ip")
+        update.message.reply_text(ip.text)
 
 
 def main():
@@ -111,7 +128,9 @@ def main():
 
     handler(MessageHandler(Filters.text, getify))
     handler(CommandHandler('start', start))
+    handler(CommandHandler('runs', runs))
     handler(CommandHandler("id", get_id))
+    handler(CommandHandler("ip", get_ip))
 
     updater.start_polling()
     updater.idle()
