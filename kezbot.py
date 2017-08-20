@@ -16,6 +16,9 @@ from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from telegram.ext.dispatcher import run_async
 from strings import YoutubePattern, MatchPattern, RemoveWords, StringRegex, run_strings
 
+import pprint
+pp = pprint.PrettyPrinter(indent=4)
+
 OWNER_ID = int(Config.OWNER_ID)  # Telegram user ID
 
 
@@ -37,6 +40,7 @@ def getify(bot, update):
             json = simplejson.load(urllib.request.urlopen(url))
             title = json['items'][0]['snippet']['title']  # get title from Youtube
             strips = [' - ', '- ', ' -', ': ', ' : ', ' :', ' – ']
+            print('Title from Youtube:', title)
 
             if not any(e in title for e in strips):
                 update.effective_message.reply_text('This is not a valid song, try a different url')
@@ -45,10 +49,15 @@ def getify(bot, update):
                                                     .format(title))
                 result = re.compile(RemoveWords, re.I)
                 result = result.sub("", title).strip()
-                for m in re.finditer(r'\([^()]+\)', title):
+                print('RemoveWords:', result)
+
+                for m in re.finditer(r'\([^()]+\)', result):
                     if not re.search(r'\b(remix|edit|rmx)\b', m.group(), re.I):
                         result = re.sub(re.escape(m.group()), '', result)
                 result = re.sub(StringRegex, '', result).strip()
+                result = ' '.join(result.split())
+                print('After Regex:', result)
+
                 split = ' - |- | -|: | : | :| – '
                 new_list = list(filter(None, re.split(split, result)))
 
