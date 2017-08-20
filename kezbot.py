@@ -73,19 +73,19 @@ def getify(bot, update):
                         spottracks = results['tracks']['items']
                         if spottracks:
                             spotartist = spottracks[0]['artists'][0]['name']
-                            spotitle = spottracks[0]['name']
+                            spottitle = spottracks[0]['name']
                             spoturl = spottracks[0]['external_urls']['spotify']
                             update.effective_message.reply_text("► {0} - {1} \n{2}"
-                                                                .format(spotartist, spotitle, spoturl))
+                                                                .format(spotartist, spottitle, spoturl))
                         else:
                             results = spot.search(q="artist:{} track:{}".format(track, artist, limit=1))
                             spottracks = results['tracks']['items']
                             if spottracks:
                                 spotartist = spottracks[0]['artists'][0]['name']
-                                spotitle = spottracks[0]['name']
+                                spottitle = spottracks[0]['name']
                                 spoturl = spottracks[0]['external_urls']['spotify']
                                 update.effective_message.reply_text("► {0} - {1} \n{2}"
-                                                                    .format(spotartist, spotitle, spoturl))
+                                                                    .format(spotartist, spottitle, spoturl))
                             else:
                                 update.effective_message.reply_text("I can't find this track on Spotify :( "
                                                 "Try a different link or search for another song.")
