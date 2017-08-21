@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import logging
-import os
 import re
 from random import randint
 from time import sleep
@@ -127,7 +126,6 @@ def main():
     logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                         level=logging.INFO)
     token = Config.API_KEY
-    port = int(os.environ.get('443', '5000'))
     updater = Updater(token)
     handler = updater.dispatcher.add_handler
 
@@ -137,11 +135,7 @@ def main():
     handler(CommandHandler("id", get_id))
     handler(CommandHandler("ip", get_ip))
 
-    updater.start_webhook(listen="0.0.0.0",
-                          port=port,
-                          url_path=token)
-    updater.bot.set_webhook("https://kezbot.herokuapp.com/" + token)
-#    updater.start_polling()
+    updater.start_polling()
     updater.idle()
 
 if __name__ == '__main__':
