@@ -135,7 +135,12 @@ def main():
     handler(CommandHandler("id", get_id))
     handler(CommandHandler("ip", get_ip))
 
-    updater.start_polling()
+    updater.start_webhook(listen='0.0.0.0',
+                          port=88,
+                          url_path=token,
+                          key='private.key',
+                          cert='cert.pem',
+                          webhook_url='https://example.com:88/{0}'.format(token))
     updater.idle()
 
 if __name__ == '__main__':
