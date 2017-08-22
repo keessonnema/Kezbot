@@ -137,7 +137,6 @@ def main():
     handler(CommandHandler("ip", get_ip))
 
     heroku = Config.heroku
-
     if heroku:
         port = int(os.environ.get('PORT', 5000))
         updater.start_webhook(listen="0.0.0.0",
