@@ -9,4 +9,4 @@ A Youtube video title MUST in every case have a hyphen between the Artist and th
 particular remix or edit. If there's something else between parentheses the parentheses including that text will be
 removed to widen search.
 
-If you have any questions about this bot feel free to text my on Telegram (@keessonnema)
+If you have any questions about this bot feel free to send me a message on Telegram (@keessonnema)
