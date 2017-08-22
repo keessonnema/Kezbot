@@ -1,5 +1,5 @@
 # Kezbot
-A Telegram bot that provides Spotify-URLs from Youtube-URLS
+A Telegram bot that provides Spotify-URLs from Youtube-URLs
 
 - Youtube titles without a hyphen (-) will give no results.
 A Youtube video title MUST in every case have a hyphen between the Artist and the Title of a video.
