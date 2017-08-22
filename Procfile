@@ -1,1 +1,1 @@
-web: python kezbot.py
+web: python3 kezbot.py

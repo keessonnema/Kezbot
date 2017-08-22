@@ -3,6 +3,7 @@
 
 import logging
 import re
+import os
 from random import randint
 from time import sleep
 import requests
@@ -135,7 +136,16 @@ def main():
     handler(CommandHandler("id", get_id))
     handler(CommandHandler("ip", get_ip))
 
-    updater.start_polling()
+    heroku = Config.heroku
+
+    if heroku:
+        port = int(os.environ.get('PORT', 5000))
+        updater.start_webhook(listen="0.0.0.0",
+                              port=port,
+                              url_path=token)
+        updater.bot.set_webhook("https://kezbot.herokuapp.com/" + token)
+    else:
+        updater.start_polling()
     updater.idle()
 
 if __name__ == '__main__':
