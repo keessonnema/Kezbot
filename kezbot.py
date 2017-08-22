@@ -136,16 +136,16 @@ def main():
     handler(CommandHandler("id", get_id))
     handler(CommandHandler("ip", get_ip))
 
-    heroku = Config.heroku
+    priv_key = Config.priv_key
+    cert_pem = Config.cert_pem
+    webhook_url = Config.webhook_url
 
-    if heroku:
-        port = int(os.environ.get('PORT', 5000))
-        updater.start_webhook(listen="0.0.0.0",
-                              port=port,
-                              url_path=token)
-        updater.bot.set_webhook("https://kezbot.herokuapp.com/" + token)
-    else:
-        updater.start_polling()
+    updater.start_webhook(listen='0.0.0.0',
+                          port=443,
+                          url_path=token,
+                          key=priv_key,
+                          cert=cert_pem,
+                          webhook_url=webhook_url + token)
     updater.idle()
 
 if __name__ == '__main__':
