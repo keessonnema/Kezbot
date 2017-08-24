@@ -140,12 +140,16 @@ def main():
     cert_pem = Config.cert_pem
     webhook_url = Config.webhook_url
 
-    updater.start_webhook(listen='0.0.0.0',
-                          port=443,
-                          url_path=token,
-                          key=priv_key,
-                          cert=cert_pem,
-                          webhook_url=webhook_url + token)
+    #updater.start_webhook(listen='0.0.0.0',
+    #                      port=443,
+    #                      url_path=token,
+    #                      key=priv_key,
+    #                      cert=cert_pem,
+    #                      webhook_url=webhook_url + token)
+    updater.start_webhook(listen='127.0.0.1', port=5000, url_path=token)
+    updater.bot.set_webhook(url=webhook_url + token,
+                        certificate=open(cert_pem, 'rb'))
+
     updater.idle()
 
 if __name__ == '__main__':
