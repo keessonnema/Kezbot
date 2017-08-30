@@ -3,19 +3,18 @@
 
 import logging
 import re
-import os
 from random import randint
 from time import sleep
 import requests
 import urllib.error
 import urllib.request
-import simplejson
+import ujson
 import spotipy
 import spotipy.util as util
 from config import Config
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from telegram.ext.dispatcher import run_async
-from strings import YoutubePattern, MatchPattern, RemoveWords, StringRegex, run_strings
+from strings import *
 
 OWNER_ID = int(Config.OWNER_ID)  # Telegram user ID
 
@@ -35,7 +34,7 @@ def getify(bot, update):
             update.effective_message.reply_text("This is not a Youtube-URL! \nTry again.")
         else:
             url = "https://www.googleapis.com/youtube/v3/videos?part=snippet&id={0}&key={1}".format(yt_id, api)
-            json = simplejson.load(urllib.request.urlopen(url))
+            json = ujson.load(urllib.request.urlopen(url))
             title = json['items'][0]['snippet']['title']  # get title from Youtube
             strips = [' - ', '- ', ' -', ': ', ' : ', ' :', ' – ']
 
@@ -89,7 +88,7 @@ def getify(bot, update):
                                                                     .format(spotartist, spottitle, spoturl))
                             else:
                                 update.effective_message.reply_text("I can't find this track on Spotify :( "
-                                                "Try a different link or search for another song.")
+                                                                    "Try a different link or search for another song.")
                     else:
                         update.effective_message.reply_text("This is not a song. Try some music :)")
                 else:
@@ -110,12 +109,14 @@ def runs(bot, update):
     update.effective_message.reply_text(run_strings[start_running])
 
 
+@run_async
 def get_id(bot, update):
     sender = update.message.from_user
     sender_id = str(sender.id)
     update.effective_message.reply_text("Your ID is " + sender_id)
 
 
+@run_async
 def get_ip(bot, update):  # get bot ip
     sender = update.message.from_user
     if sender.id == 18673980:
@@ -136,20 +137,12 @@ def main():
     handler(CommandHandler("id", get_id))
     handler(CommandHandler("ip", get_ip))
 
-    priv_key = Config.priv_key
     cert_pem = Config.cert_pem
     webhook_url = Config.webhook_url
 
-    #updater.start_webhook(listen='0.0.0.0',
-    #                      port=443,
-    #                      url_path=token,
-    #                      key=priv_key,
-    #                      cert=cert_pem,
-    #                      webhook_url=webhook_url + token)
     updater.start_webhook(listen='127.0.0.1', port=5000, url_path=token)
     updater.bot.set_webhook(url=webhook_url + token,
-                        certificate=open(cert_pem, 'rb'))
-
+                            certificate=open(cert_pem, 'rb'))
     updater.idle()
 
 if __name__ == '__main__':

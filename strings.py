@@ -1,8 +1,8 @@
 MatchPattern = '([a-z]+?:\/\/)*([a-z]*?[.])*youtu([.]be|be[.][a-z]+?)\/((watch[?]v=|v)*).+'
 YoutubePattern = r'(?:https?:\/\/)?(?:[0-9A-Z-]+\.)?(?:youtube|youtu|youtube-nocookie)\.' \
                   r'(?:com|be)\/(?:watch\?v=|watch\?.+&v=|embed\/|v\/|.+\?v=)?([^&=\n%\?]{11})'
-RemoveWords = "ft|feat|lyrics|lyric"
-KeepWords = ["remix", "edit"]
+RemoveWords = 'ft|feat|lyrics|lyric'
+KeepWords = ['remix', 'edit']
 StringRegex = r'\[[^\]]*\]|\(\d+\)|“.*?”|".*?"|[.]|[&]|[,]'
 
 run_strings = (
