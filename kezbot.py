@@ -34,7 +34,9 @@ def getify(bot, update):
             update.effective_message.reply_text("This is not a Youtube-URL! \nTry again.")
         else:
             url = "https://www.googleapis.com/youtube/v3/videos?part=snippet&id={0}&key={1}".format(yt_id, api)
-            json = ujson.load(urllib.request.urlopen(url))
+            url = requests.get(url)
+            json = url.json()
+            #json = ujson.load(urllib.request.urlopen(url))
             title = json['items'][0]['snippet']['title']  # get title from Youtube
             strips = [' - ', '- ', ' -', ': ', ' : ', ' :', ' – ']
 
@@ -140,9 +142,10 @@ def main():
     cert_pem = Config.cert_pem
     webhook_url = Config.webhook_url
 
-    updater.start_webhook(listen='127.0.0.1', port=5000, url_path=token)
-    updater.bot.set_webhook(url=webhook_url + token,
-                            certificate=open(cert_pem, 'rb'))
+    #updater.start_webhook(listen='127.0.0.1', port=5000, url_path=token)
+    #updater.bot.set_webhook(url=webhook_url + token,
+    #                        certificate=open(cert_pem, 'rb'))
+    updater.start_polling()
     updater.idle()
 
 if __name__ == '__main__':
