@@ -6,21 +6,20 @@ import re
 from random import randint
 from time import sleep
 import requests
-import urllib.error
-import urllib.request
 import ujson
 import spotipy
 import spotipy.util as util
 from config import Config
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from telegram.ext.dispatcher import run_async
-from strings import *
+from strings import MatchPattern, YoutubePattern, strips, split, RemoveWords, \
+    KeepWords, StringRegex, run_strings
 
 OWNER_ID = int(Config.OWNER_ID)  # Telegram user ID
 
 
 @run_async
-def getify(bot, update):
+def getify(_bot, update):
     api = Config.YOUTUBE_API_KEY  # Youtube API
     yt_url = update.effective_message.text
     pattern = MatchPattern
@@ -33,28 +32,24 @@ def getify(bot, update):
         if not yt_id:
             update.effective_message.reply_text("This is not a Youtube-URL! \nTry again.")
         else:
-            url = "https://www.googleapis.com/youtube/v3/videos?part=snippet&id={0}&key={1}".format(yt_id, api)
-            url = requests.get(url)
-            json = url.json()
-            #json = ujson.load(urllib.request.urlopen(url))
-            title = json['items'][0]['snippet']['title']  # get title from Youtube
-            strips = [' - ', '- ', ' -', ': ', ' : ', ' :', ' – ']
+            url = "https://www.googleapis.com/youtube/v3/videos?part=snippet&id={0}&key={1}"\
+                .format(yt_id, api)
+            title = ujson.loads(requests.get(url).text)
+            title = title['items'][0]['snippet']['title']  # get title from Youtube
 
             if not any(e in title for e in strips):
                 update.effective_message.reply_text('This is not a valid song, try a different url')
             else:
-                update.effective_message.reply_text("You've searched for: \n♫ {0}. \n\nLet me find it on Spotify!"
-                                                    .format(title))
+                update.effective_message.reply_text("You've searched for: \n♫ {0}. \n\n"
+                                                    "Let me find it on Spotify!".format(title))
                 result = re.compile(RemoveWords, re.I)
                 result = result.sub("", title).strip()
 
                 for m in re.finditer(r'\([^()]+\)', result):
-                    if not re.search(r'\b(remix|edit|rmx)\b', m.group(), re.I):
+                    if not re.search(KeepWords, m.group(), re.I):
                         result = re.sub(re.escape(m.group()), '', result)
                 result = re.sub(StringRegex, '', result).strip()
                 result = ' '.join(result.split())
-
-                split = ' - |- | -|: | : | :| – '
                 new_list = list(filter(None, re.split(split, result)))
 
                 first = new_list[0]
@@ -62,6 +57,8 @@ def getify(bot, update):
                 sep2 = 'AKA'
                 new_list[0] = first.split(sep, 1)[0]
                 new_list[0] = first.split(sep2, 1)[0]
+
+                print(new_list)
 
                 spotify_token = util.prompt_for_user_token(Config.username, Config.scope)
 
@@ -77,20 +74,22 @@ def getify(bot, update):
                             spotartist = spottracks[0]['artists'][0]['name']
                             spottitle = spottracks[0]['name']
                             spoturl = spottracks[0]['external_urls']['spotify']
-                            update.effective_message.reply_text("► {0} - {1} \n{2}"
-                                                                .format(spotartist, spottitle, spoturl))
+                            update.effective_message.reply_text\
+                                ("► {0} - {1} \n{2}".format(spotartist, spottitle, spoturl))
                         else:
-                            results = spot.search(q="artist:{} track:{}".format(track, artist, limit=1))
+                            results = spot.search(q="artist:{} track:{}"
+                                                  .format(track, artist, limit=1))
                             spottracks = results['tracks']['items']
                             if spottracks:
                                 spotartist = spottracks[0]['artists'][0]['name']
                                 spottitle = spottracks[0]['name']
                                 spoturl = spottracks[0]['external_urls']['spotify']
-                                update.effective_message.reply_text("► {0} - {1} \n{2}"
-                                                                    .format(spotartist, spottitle, spoturl))
+                                update.effective_message.reply_text\
+                                    ("► {0} - {1} \n{2}".format(spotartist, spottitle, spoturl))
                             else:
-                                update.effective_message.reply_text("I can't find this track on Spotify :( "
-                                                                    "Try a different link or search for another song.")
+                                update.effective_message.reply_text\
+                                    ("I can't find this track on Spotify :( "
+                                     "Try a different link or search for another song.")
                     else:
                         update.effective_message.reply_text("This is not a song. Try some music :)")
                 else:
@@ -98,30 +97,30 @@ def getify(bot, update):
 
 
 @run_async
-def start(bot, update):
+def start(_bot, update):
     update.effective_message.reply_text(
         "Hello {}. I'm KezBot. Send me a Youtube-URL and I'll give you a Spotify-URL to that song!"
         .format(update.message.from_user.first_name))
 
 
 @run_async
-def runs(bot, update):
+def runs(_bot, update):
     sleep(3)
     start_running = randint(0, len(run_strings)-1)
     update.effective_message.reply_text(run_strings[start_running])
 
 
 @run_async
-def get_id(bot, update):
+def get_id(_bot, update):
     sender = update.message.from_user
     sender_id = str(sender.id)
     update.effective_message.reply_text("Your ID is " + sender_id)
 
 
 @run_async
-def get_ip(bot, update):  # get bot ip
+def get_ip(_bot, update):
     sender = update.message.from_user
-    if sender.id == 18673980:
+    if sender.id == Config.OWNER_ID:
         ip = requests.get("http://ipinfo.io/ip")
         update.message.reply_text(ip.text)
 
@@ -139,12 +138,15 @@ def main():
     handler(CommandHandler("id", get_id))
     handler(CommandHandler("ip", get_ip))
 
-    cert_pem = Config.cert_pem
-    webhook_url = Config.webhook_url
+    if Config.use_webhooks:
+        cert_pem = Config.cert_pem
+        webhook_url = Config.webhook_url
 
-    updater.start_webhook(listen='127.0.0.1', port=5000, url_path=token)
-    updater.bot.set_webhook(url=webhook_url + token,
-                            certificate=open(cert_pem, 'rb'))
+        updater.start_webhook(listen='127.0.0.1', port=5000, url_path=token)
+        updater.bot.set_webhook(url=webhook_url + token,
+                                certificate=open(cert_pem, 'rb'))
+    else:
+        updater.start_polling()
     updater.idle()
 
 if __name__ == '__main__':
