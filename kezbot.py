@@ -99,7 +99,7 @@ def getify(_bot, update):
 @run_async
 def start(_bot, update):
     update.effective_message.reply_text(
-        "Hello {}. I'm KezBot. Send me a Youtube-URL and I'll give you a Spotify-URL to that song!"
+        "Hello {}. I'm Shifty. Send me a Youtube-URL and I'll give you a Spotify-URL to that song!"
         .format(update.message.from_user.first_name))
 
 
