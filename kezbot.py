@@ -40,8 +40,8 @@ def getify(_bot, update):
             if not any(e in title for e in strips):
                 update.effective_message.reply_text('This is not a valid song, try a different url')
             else:
-                update.effective_message.reply_text("You've searched for: \n♫ {0}. \n\n"
-                                                    "Let me find it on Spotify!".format(title))
+                # update.effective_message.reply_text("You've searched for: \n♫ {0}. \n\n"
+                #                                    "Let me find it on Spotify!".format(title))
                 result = re.compile(RemoveWords, re.I)
                 result = result.sub("", title).strip()
 
