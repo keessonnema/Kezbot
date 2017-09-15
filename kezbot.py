@@ -12,6 +12,7 @@ import spotipy.util as util
 from config import Config
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from telegram.ext.dispatcher import run_async
+from telegram import MessageEntity
 from strings import MatchPattern, YoutubePattern, strips, split, RemoveWords, \
     KeepWords, StringRegex, run_strings
 
@@ -20,8 +21,11 @@ OWNER_ID = int(Config.OWNER_ID)  # Telegram user ID
 
 @run_async
 def getify(_bot, update):
-    api = Config.YOUTUBE_API_KEY  # Youtube API
-    yt_url = update.effective_message.text
+    api = Config.YOUTUBE_API_KEY
+    get_text = update.effective_message.parse_entities\
+        (types=[MessageEntity.URL, MessageEntity.TEXT_LINK])
+    yt_url = ''.join(list(
+        [y if t.type == MessageEntity.URL else t.url for t, y in get_text.items()][0]))
     pattern = MatchPattern
 
     if re.match(pattern, yt_url, re.I):
@@ -30,7 +34,7 @@ def getify(_bot, update):
         yt_id = ' '.join(re.findall(pattern, yt_link, re.MULTILINE | re.IGNORECASE))
 
         if not yt_id:
-            update.effective_message.reply_text("This is not a Youtube-URL! \nTry again.")
+            update.effective_message.reply_text("This is not a valid Youtube-URL! \nTry again.")
         else:
             url = "https://www.googleapis.com/youtube/v3/videos?part=snippet&id={0}&key={1}"\
                 .format(yt_id, api)
@@ -38,7 +42,8 @@ def getify(_bot, update):
             title = title['items'][0]['snippet']['title']  # get title from Youtube
 
             if not any(e in title for e in strips):
-                update.effective_message.reply_text('This is not a valid song, try a different url')
+                update.effective_message.reply_text('This is not a valid song :('
+                                                    '\nTry a different link or search for another song.')
             else:
                 # update.effective_message.reply_text("You've searched for: \n♫ {0}. \n\n"
                 #                                    "Let me find it on Spotify!".format(title))
@@ -57,8 +62,6 @@ def getify(_bot, update):
                 sep2 = 'AKA'
                 new_list[0] = first.split(sep, 1)[0]
                 new_list[0] = first.split(sep2, 1)[0]
-
-                print(new_list)
 
                 spotify_token = util.prompt_for_user_token(Config.username, Config.scope)
 
@@ -89,7 +92,7 @@ def getify(_bot, update):
                             else:
                                 update.effective_message.reply_text\
                                     ("I can't find this track on Spotify :( "
-                                     "Try a different link or search for another song.")
+                                     "\nTry a different link or search for another song.")
                     else:
                         update.effective_message.reply_text("This is not a song. Try some music :)")
                 else:
@@ -127,7 +130,7 @@ def get_ip(_bot, update):
 
 def main():
     logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-                        level=logging.INFO)
+                        level=logging.WARNING)
     token = Config.API_KEY
     updater = Updater(token)
     handler = updater.dispatcher.add_handler

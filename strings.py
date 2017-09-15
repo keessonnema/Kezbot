@@ -2,10 +2,10 @@ MatchPattern = '([a-z]+?:\/\/)*([a-z]*?[.])*youtu([.]be|be[.][a-z]+?)\/((watch[?
 YoutubePattern = r'(?:https?:\/\/)?(?:[0-9A-Z-]+\.)?(?:youtube|youtu|youtube-nocookie)\.' \
                   r'(?:com|be)\/(?:watch\?v=|watch\?.+&v=|embed\/|v\/|.+\?v=)?([^&=\n%\?]{11})'
 
-strips = [' - ', '- ', ' -', ': ', ' : ', ' :', ' – ']
-split = ' - |- | -|: | : | :| – '
+strips = [' - ', '- ', ' -', ' – ']
+split = ' - |- | -| – '
 
-RemoveWords = ' ft| feat|lyrics|lyric'
+RemoveWords = ' ft| feat|lyrics|lyric|vs'
 KeepWords = r'\b(remix|edit|rmx)\b'
 StringRegex = r'\[[^\]]*\]|\(\d+\)|“.*?”|".*?"|[.]|[&]|[,]'
 
