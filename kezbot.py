@@ -136,7 +136,8 @@ def main():
     updater = Updater(token)
     handler = updater.dispatcher.add_handler
 
-    handler(MessageHandler(Filters.text, getify))
+    handler(MessageHandler(Filters.text &
+                           Filters.entity(MessageEntity.URL), getify))
     handler(CommandHandler('start', start))
     handler(CommandHandler('runs', runs))
     handler(CommandHandler("id", get_id))
