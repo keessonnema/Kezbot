@@ -24,8 +24,8 @@ def getify(_bot, update):
     api = Config.YOUTUBE_API_KEY
     get_text = update.effective_message.parse_entities\
         (types=[MessageEntity.URL, MessageEntity.TEXT_LINK])
-    yt_url = ''.join(list(
-        [y if t.type == MessageEntity.URL else t.url for t, y in get_text.items()][0]))
+    yt_url = ''.join(list([y if t.type == MessageEntity.URL
+                           else t.url for t, y in get_text.items()][0]))
     pattern = MatchPattern
 
     if re.match(pattern, yt_url, re.I):
@@ -48,7 +48,7 @@ def getify(_bot, update):
                 # update.effective_message.reply_text("You've searched for: \n♫ {0}. \n\n"
                 #                                    "Let me find it on Spotify!".format(title))
                 result = re.compile(RemoveWords, re.I)
-                result = result.sub("", title).strip()
+                result = result.sub('', title).strip()
 
                 for m in re.finditer(r'\([^()]+\)', result):
                     if not re.search(KeepWords, m.group(), re.I):
@@ -69,6 +69,7 @@ def getify(_bot, update):
                     spot = spotipy.Spotify(auth=spotify_token)
                     artist = new_list[0]
                     track = new_list[1]
+
                     results = spot.search(q="artist:{} track:{}".format(artist, track, limit=1))
 
                     if results:

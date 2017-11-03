@@ -7,7 +7,7 @@ split = ' - |- | -| – '
 
 RemoveWords = ' ft| feat|lyrics|lyric|vs'
 KeepWords = r'\b(remix|edit|rmx|rework)\b'
-StringRegex = r'\[[^\]]*\]|\(\d+\)|“.*?”|".*?"|[.]|[&]|[,]'
+StringRegex = r'\[[^\]]*\]|\(\d+\)|“.*?”|[.]|[&]|[,]'
 
 run_strings = (
     "Where do you think you're going?",
