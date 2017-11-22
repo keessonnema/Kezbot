@@ -15,9 +15,10 @@ from telegram.ext.dispatcher import run_async
 from telegram import MessageEntity
 from strings import MatchPattern, YoutubePattern, strips, split, RemoveWords, \
     KeepWords, StringRegex, run_strings
+from mwt import MWT
 
 OWNER_ID = int(Config.OWNER_ID)  # Telegram user ID
-
+SILENT = false
 
 @run_async
 def getify(_bot, update):
@@ -41,7 +42,7 @@ def getify(_bot, update):
             title = ujson.loads(requests.get(url).text)
             title = title['items'][0]['snippet']['title']  # get title from Youtube
 
-            if not any(e in title for e in strips):
+            if not any(e in title for e in strips) and not SILENT:
                 update.effective_message.reply_text('This is not a valid song :('
                                                     '\nTry a different link or search for another song.')
             else:
@@ -129,6 +130,21 @@ def get_ip(_bot, update):
         update.message.reply_text(ip.text)
 
 
+@MWT(timeout=60*60)
+def get_admin_ids(bot, chat_id):
+    """Returns a list of admin IDs for a given chat. Results are cached for 1 hour."""
+    return [admin.user.id for admin in bot.get_chat_administrators(chat_id)]
+
+
+def silent(_bot, update):
+    if update.message.from_user.id in get_admin_ids(_bot, update.message.chat_id):
+        SILENT = (not SILENT)
+        if SILENT:
+            update.effective_message.reply_text("Okay, I won't say if I can't find a song!")
+        else:
+            update.effective_message.reply_text("Alright, you want me to chatter and I will!"
+
+
 def main():
     logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                         level=logging.WARNING)
@@ -142,6 +158,7 @@ def main():
     handler(CommandHandler('runs', runs))
     handler(CommandHandler("id", get_id))
     handler(CommandHandler("ip", get_ip))
+    handler(CommandHandler("silent", silent))
 
     if Config.use_webhooks:
         cert_pem = Config.cert_pem
