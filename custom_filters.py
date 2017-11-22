@@ -1,5 +1,4 @@
 from telegram.ext import BaseFilter
-import re
 
 
 class __UrlFilter(BaseFilter):
