@@ -1,5 +1,3 @@
-telegram
-config
 spotipy
 ujson
 requests
