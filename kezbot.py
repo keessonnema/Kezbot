@@ -41,10 +41,7 @@ def getify(_bot, update):
             title = ujson.loads(requests.get(url).text)
             title = title['items'][0]['snippet']['title']  # get title from Youtube
 
-            if not any(e in title for e in strips):
-                update.effective_message.reply_text('This is not a valid song :('
-                                                    '\nTry a different link or search for another song.')
-            else:
+            if any(e in title for e in strips):
                 # update.effective_message.reply_text("You've searched for: \n♫ {0}. \n\n"
                 #                                    "Let me find it on Spotify!".format(title))
                 result = re.compile(RemoveWords, re.I)
@@ -90,12 +87,6 @@ def getify(_bot, update):
                                 spoturl = spottracks[0]['external_urls']['spotify']
                                 update.effective_message.reply_text\
                                     ("► {0} - {1} \n{2}".format(spotartist, spottitle, spoturl))
-                            else:
-                                update.effective_message.reply_text\
-                                    ("I can't find this track on Spotify :( "
-                                     "\nTry a different link or search for another song.")
-                    else:
-                        update.effective_message.reply_text("This is not a song. Try some music :)")
                 else:
                     print("There's something wrong with the Spotify token")
 
