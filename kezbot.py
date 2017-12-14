@@ -41,9 +41,11 @@ def getify(_bot, update):
             title = ujson.loads(requests.get(url).text)
             title = title['items'][0]['snippet']['title']  # get title from Youtube
 
-            if any(e in title for e in strips):
-                # update.effective_message.reply_text("You've searched for: \n♫ {0}. \n\n"
-                #                                    "Let me find it on Spotify!".format(title))
+            if not any(e in title for e in strips):
+                if update.message.chat.type == "private":
+                    update.effective_message.reply_text('This is not a valid song :('
+                                                        '\nTry a different link or search for another song.')
+            else:
                 result = re.compile(RemoveWords, re.I)
                 result = result.sub('', title).strip()
 
@@ -87,6 +89,11 @@ def getify(_bot, update):
                                 spoturl = spottracks[0]['external_urls']['spotify']
                                 update.effective_message.reply_text\
                                     ("► {0} - {1} \n{2}".format(spotartist, spottitle, spoturl))
+                            else:
+                                if update.message.chat.type == "private":
+                                    update.effective_message.reply_text\
+                                        ("I can't find this track on Spotify :( "
+                                            "\nTry a different link or search for another song.")
                 else:
                     print("There's something wrong with the Spotify token")
 
@@ -121,7 +128,7 @@ def get_ip(_bot, update):
 
 def main():
     logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-                        level=logging.WARNING)
+                        level=logging.ERROR)
     token = Config.API_KEY
     updater = Updater(token)
     handler = updater.dispatcher.add_handler
