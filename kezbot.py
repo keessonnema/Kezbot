@@ -4,7 +4,6 @@
 import logging
 import re
 from random import randint
-from time import sleep
 import requests
 import ujson
 import spotipy
@@ -16,7 +15,7 @@ from telegram import MessageEntity
 from strings import MatchPattern, YoutubePattern, strips, split, RemoveWords, \
     KeepWords, StringRegex, run_strings
 
-OWNER_ID = int(Config.OWNER_ID)  # Telegram user ID
+owner_id = int(Config.OWNER_ID)  # Telegram user ID
 
 
 @run_async
@@ -121,14 +120,16 @@ def get_id(_bot, update):
 @run_async
 def get_ip(_bot, update):
     sender = update.message.from_user
-    if sender.id == Config.OWNER_ID:
+    if sender.id == owner_id:
         ip = requests.get("http://ipinfo.io/ip")
         update.message.reply_text(ip.text)
+    else:
+        update.message.reply_text("Sorry m8, can't do that.")
 
 
 def main():
     logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-                        level=logging.ERROR)
+                        level=logging.WARNING)
     token = Config.API_KEY
     updater = Updater(token)
     handler = updater.dispatcher.add_handler
