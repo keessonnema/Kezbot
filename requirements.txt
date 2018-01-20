@@ -2,4 +2,3 @@ spotipy
 ujson
 requests
 python-telegram-bot
-ujson
