@@ -149,7 +149,7 @@ def main():
         updater.bot.set_webhook(url=webhook_url + token,
                                 certificate=open(cert_pem, 'rb'))
     else:
-        updater.start_polling()
+        updater.start_polling(poll_interval=1.0, timeout=20)
     updater.idle()
 
 if __name__ == '__main__':
