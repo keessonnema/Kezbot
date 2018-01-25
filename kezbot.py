@@ -8,10 +8,13 @@ import requests
 import ujson
 import spotipy
 import spotipy.util as util
+import telegram
+
+from database import DBHelper
 from config import Config
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from telegram.ext.dispatcher import run_async
-from telegram import MessageEntity
+from telegram import MessageEntity, ParseMode, bot
 from strings import MatchPattern, YoutubePattern, strips, split, RemoveWords, \
     KeepWords, StringRegex, run_strings
 
@@ -21,7 +24,7 @@ owner_id = int(Config.OWNER_ID)  # Telegram user ID
 @run_async
 def getify(_bot, update):
     api = Config.YOUTUBE_API_KEY
-    get_text = update.effective_message.parse_entities\
+    get_text = update.effective_message.parse_entities \
         (types=[MessageEntity.URL, MessageEntity.TEXT_LINK])
     yt_url = ''.join(list([y if t.type == MessageEntity.URL
                            else t.url for t, y in get_text.items()][0]))
@@ -35,7 +38,7 @@ def getify(_bot, update):
         if not yt_id:
             update.effective_message.reply_text("This is not a valid Youtube-URL! \nTry again.")
         else:
-            url = "https://www.googleapis.com/youtube/v3/videos?part=snippet&id={0}&key={1}"\
+            url = "https://www.googleapis.com/youtube/v3/videos?part=snippet&id={0}&key={1}" \
                 .format(yt_id, api)
             title = ujson.loads(requests.get(url).text)
             title = title['items'][0]['snippet']['title']  # get title from Youtube
@@ -76,7 +79,7 @@ def getify(_bot, update):
                             spotartist = spottracks[0]['artists'][0]['name']
                             spottitle = spottracks[0]['name']
                             spoturl = spottracks[0]['external_urls']['spotify']
-                            update.effective_message.reply_text\
+                            update.effective_message.reply_text \
                                 ("► {0} - {1} \n{2}".format(spotartist, spottitle, spoturl))
                         else:
                             results = spot.search(q="artist:{} track:{}"
@@ -86,13 +89,13 @@ def getify(_bot, update):
                                 spotartist = spottracks[0]['artists'][0]['name']
                                 spottitle = spottracks[0]['name']
                                 spoturl = spottracks[0]['external_urls']['spotify']
-                                update.effective_message.reply_text\
+                                update.effective_message.reply_text \
                                     ("► {0} - {1} \n{2}".format(spotartist, spottitle, spoturl))
                             else:
                                 if update.message.chat.type == "private":
-                                    update.effective_message.reply_text\
+                                    update.effective_message.reply_text \
                                         ("I can't find this track on Spotify :( "
-                                            "\nTry a different link or search for another song.")
+                                         "\nTry a different link or search for another song.")
                 else:
                     print("There's something wrong with the Spotify token")
 
@@ -101,12 +104,12 @@ def getify(_bot, update):
 def start(_bot, update):
     update.effective_message.reply_text(
         "Hello {}. I'm Shifty. Send me a Youtube-URL and I'll give you a Spotify-URL to that song!"
-        .format(update.message.from_user.first_name))
+            .format(update.message.from_user.first_name))
 
 
 @run_async
 def runs(_bot, update):
-    start_running = randint(0, len(run_strings)-1)
+    start_running = randint(0, len(run_strings) - 1)
     update.effective_message.reply_text(run_strings[start_running])
 
 
@@ -124,7 +127,32 @@ def get_ip(_bot, update):
         ip = requests.get("http://ipinfo.io/ip")
         update.message.reply_text(ip.text)
     else:
-        update.message.reply_text("Sorry m8, can't do that.")
+        update.message.reply_text("Sorry mate, can't do that.")
+
+
+@run_async
+def chats(_bot, update):
+    chat_id = str(update.effective_chat.id)
+    chat_name = str(update.effective_chat.title)
+    print(chat_id, chat_name)
+
+    db.add_item(chat_id, chat_name)
+
+
+def get_chats(bot, update):
+    chat_id = update.effective_chat.id
+    get = db.get_items()
+    text = ''
+    for g in get:
+        text += '\n - ' + g[0]
+
+    bot.send_message(chat_id=chat_id,
+                     text="*Shifty is in the following groups:*"
+                          "{0}".format(text),
+                     parse_mode=telegram.ParseMode.MARKDOWN)
+
+
+db = DBHelper()
 
 
 def main():
@@ -140,6 +168,10 @@ def main():
     handler(CommandHandler('runs', runs))
     handler(CommandHandler("id", get_id))
     handler(CommandHandler("ip", get_ip))
+    handler(CommandHandler("get_chats", get_chats))
+
+    chat_handler = MessageHandler(Filters.all, chats)
+    updater.dispatcher.add_handler(chat_handler)
 
     if Config.use_webhooks:
         cert_pem = Config.cert_pem
@@ -151,6 +183,7 @@ def main():
     else:
         updater.start_polling(poll_interval=1.0, timeout=20)
     updater.idle()
+
 
 if __name__ == '__main__':
     main()

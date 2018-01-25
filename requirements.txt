@@ -2,3 +2,4 @@ spotipy
 ujson
 requests
 python-telegram-bot
+sqlalchemy
