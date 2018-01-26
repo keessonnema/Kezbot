@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import logging
+import pprint
 import re
 from random import randint
 import requests
@@ -100,6 +101,30 @@ def getify(_bot, update):
                     print("There's something wrong with the Spotify token")
 
 
+def search(bot, update, args):
+    chat_id = update.effective_chat.id
+    if len(args) == 0:
+        update.effective_message.reply_text("You forgot to give me a searchterm! \nTry again with: /sp "
+                                            "<your searchterm>")
+    else:
+        sp = util.prompt_for_user_token(Config.username, Config.scope)
+        if sp:
+            text = ' '.join(args)
+            spot = spotipy.Spotify(auth=sp)
+            results = spot.search(q="{}".format(text), limit=10, type="playlist")
+
+            playlist = ""
+            for item in results['playlists']['items']:
+                playlist += '\n► <a href="{0}">{1}</a> | {2} tracks'\
+                                .format(item['external_urls']['spotify'], item['name'], item['tracks']['total'])
+
+            update.effective_message.reply_text("<b>Top 10 playlists matching:</b> {0}\n"
+                                                "{1}".format(text, playlist),
+                                                parse_mode=telegram.ParseMode.HTML, disable_web_page_preview=True)
+        else:
+            print("There's something wrong with the Spotify token")
+
+
 @run_async
 def start(_bot, update):
     update.effective_message.reply_text(
@@ -169,8 +194,9 @@ def main():
     handler(CommandHandler("id", get_id))
     handler(CommandHandler("ip", get_ip))
     handler(CommandHandler("get_chats", get_chats))
+    handler(CommandHandler("playlist", search, pass_args=True))
 
-    chat_handler = MessageHandler(Filters.all, chats)
+    chat_handler = MessageHandler(Filters.all & ~Filters.private, chats)
     updater.dispatcher.add_handler(chat_handler)
 
     if Config.use_webhooks:
