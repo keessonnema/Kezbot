@@ -5,17 +5,20 @@ import logging
 import pprint
 import re
 from random import randint
+from time import sleep
+
 import requests
 import ujson
 import spotipy
 import spotipy.util as util
+import sys
 import telegram
 
 from database import DBHelper
 from config import Config
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from telegram.ext.dispatcher import run_async
-from telegram import MessageEntity, ParseMode, bot
+from telegram import MessageEntity, ParseMode, bot, TelegramError
 from strings import MatchPattern, YoutubePattern, strips, split, RemoveWords, \
     KeepWords, StringRegex, run_strings
 
@@ -115,8 +118,8 @@ def search(bot, update, args):
 
             playlist = ""
             for item in results['playlists']['items']:
-                playlist += '\n► <a href="{0}">{1}</a> | {2} tracks'\
-                                .format(item['external_urls']['spotify'], item['name'], item['tracks']['total'])
+                playlist += '\n► <a href="{0}">{1}</a> | {2} tracks' \
+                    .format(item['external_urls']['spotify'], item['name'], item['tracks']['total'])
 
             update.effective_message.reply_text("<b>Top 10 playlists matching:</b> {0}\n"
                                                 "{1}".format(text, playlist),
@@ -160,21 +163,41 @@ def chats(_bot, update):
     chat_id = str(update.effective_chat.id)
     chat_name = str(update.effective_chat.title)
     print(chat_id, chat_name)
+    if len(chat_id) > 5:
+        db.add_item(chat_id, chat_name)
+    else:
+        print('Could not add chat!')
 
-    db.add_item(chat_id, chat_name)
 
-
+@run_async
 def get_chats(bot, update):
     chat_id = update.effective_chat.id
     get = db.get_items()
-    text = ''
-    for g in get:
-        text += '\n - ' + g[0]
-
+    count = get[2]
     bot.send_message(chat_id=chat_id,
-                     text="*Shifty is in the following groups:*"
-                          "{0}".format(text),
-                     parse_mode=telegram.ParseMode.MARKDOWN)
+                     text="I'm currently in {} groups".format(count),
+                     parse_mode=telegram.ParseMode.HTML)
+
+
+@run_async
+def broadcast(bot, update):
+    to_send = update.effective_message.text.split(None, 1)
+    if len(to_send) >= 2:
+        chats = db.get_items()
+        failed = 0
+        for chat in chats[0]:
+            chat_id = str(chat[0])
+            chat_name = str(chat[1])
+            try:
+                bot.sendMessage(int(chat_id), to_send[1])
+                sleep(0.1)
+            except TelegramError:
+                failed += 1
+                print("Couldn't send broadcast to {}, group name {}".format(chat_id, chat_name),
+                      file=sys.stderr)
+
+        update.effective_message.reply_text("Broadcast complete. {} groups failed to receive the message, probably "
+                                            "due to being kicked.".format(failed))
 
 
 db = DBHelper()
@@ -193,8 +216,9 @@ def main():
     handler(CommandHandler('runs', runs))
     handler(CommandHandler("id", get_id))
     handler(CommandHandler("ip", get_ip))
-    handler(CommandHandler("get_chats", get_chats))
+    handler(CommandHandler("stats", get_chats))
     handler(CommandHandler("playlist", search, pass_args=True))
+    handler(CommandHandler("broadcast", broadcast))
 
     chat_handler = MessageHandler(Filters.all & ~Filters.private, chats)
     updater.dispatcher.add_handler(chat_handler)

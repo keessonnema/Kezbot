@@ -20,10 +20,12 @@ class DBHelper:
 
     def get_items(self):
         try:
-            cur.execute("SELECT chats_name FROM shiftyChats")
+            cur.execute("SELECT chats_id, chats_name FROM shiftyChats")
             conn.commit()
             rows = cur.fetchall()
-            return rows
+            chats_id = rows[0]
+            count = len(rows)
+            return rows, chats_id, count
 
         except sqlite3.Error as er:
             print('er:', er)
