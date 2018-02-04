@@ -7,12 +7,11 @@ class DBHelper:
     def add_item(self, chat_id, chat_name):
         add_list = list((chat_id, chat_name))
         try:
-            sql = ''' INSERT INTO shiftyChats(chats_id, chats_name)
-                          VALUES(?,?) '''
+            sql = ''' REPLACE INTO shiftyChats (chats_id, chats_name) 
+                          VALUES(?,?)'''
             cur = conn.cursor()
             cur.execute(sql, add_list)
             conn.commit()
-            print('Succesfully added chats!')
             row = cur.lastrowid
             return row
         except sqlite3.Error:
@@ -37,6 +36,6 @@ print('Opened database successfully')
 conn.execute('''CREATE TABLE IF NOT EXISTS shiftyChats 
             (chats_id int NOT NULL, 
             chats_name int NOT NULL,
-            UNIQUE(chats_id, chats_name));''')
+            UNIQUE(chats_id));''')
 
 cur = conn.cursor()

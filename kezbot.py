@@ -104,6 +104,7 @@ def getify(_bot, update):
                     print("There's something wrong with the Spotify token")
 
 
+@run_async
 def search(bot, update, args):
     chat_id = update.effective_chat.id
     if len(args) == 0:
@@ -162,7 +163,6 @@ def get_ip(_bot, update):
 def chats(_bot, update):
     chat_id = str(update.effective_chat.id)
     chat_name = str(update.effective_chat.title)
-    print(chat_id, chat_name)
     if len(chat_id) > 5:
         db.add_item(chat_id, chat_name)
     else:
@@ -174,30 +174,54 @@ def get_chats(bot, update):
     chat_id = update.effective_chat.id
     get = db.get_items()
     count = get[2]
-    bot.send_message(chat_id=chat_id,
-                     text="I'm currently in {} groups".format(count),
-                     parse_mode=telegram.ParseMode.HTML)
+    if count == 0:
+        bot.send_message(chat_id=chat_id,
+                         text="I'm not in a group yet!",
+                         parse_mode=telegram.ParseMode.HTML)
+    else:
+        bot.send_message(chat_id=chat_id,
+                         text="I'm currently in {} groups".format(count),
+                         parse_mode=telegram.ParseMode.HTML)
 
 
 @run_async
 def broadcast(bot, update):
-    to_send = update.effective_message.text.split(None, 1)
-    if len(to_send) >= 2:
-        chats = db.get_items()
-        failed = 0
-        for chat in chats[0]:
-            chat_id = str(chat[0])
-            chat_name = str(chat[1])
-            try:
-                bot.sendMessage(int(chat_id), to_send[1])
-                sleep(0.1)
-            except TelegramError:
-                failed += 1
-                print("Couldn't send broadcast to {}, group name {}".format(chat_id, chat_name),
-                      file=sys.stderr)
+    sender = update.message.from_user
+    if sender.id == owner_id:
+        to_send = update.effective_message.text.split(None, 2)
+        if len(to_send) <= 2:
+            get_message = to_send[1]
+            if len(get_message) >= 2:
+                chats = db.get_items()
+                failed = 0
+                for chat in chats[0]:
+                    chat_id = str(chat[0])
+                    chat_name = str(chat[1])
+                    try:
+                        bot.sendMessage(int(chat_id), get_message)
+                        sleep(0.1)
+                    except TelegramError:
+                        failed += 1
+                        print("Couldn't send broadcast to {}, group name {}".format(chat_id, chat_name),
+                              file=sys.stderr)
+        else:
+            get_id = to_send[1]
+            get_message = to_send[2]
+            if len(get_message) >= 2:
+                failed = 0
+                chat_id = get_id
+                try:
+                    bot.sendMessage(int(chat_id), get_message)
+                    sleep(0.1)
+                except TelegramError:
+                    failed += 1
+                    print("Couldn't send broadcast to {}".format(chat_id),
+                          file=sys.stderr)
 
-        update.effective_message.reply_text("Broadcast complete. {} groups failed to receive the message, probably "
-                                            "due to being kicked.".format(failed))
+            update.effective_message.reply_text("Broadcast complete. {} groups failed to receive the message, probably "
+                                                "due to being kicked.".format(failed))
+    else:
+        update.message.reply_text("Sorry mate, can't do that.")
 
 
 db = DBHelper()
