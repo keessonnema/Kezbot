@@ -18,12 +18,16 @@ class DBHelper:
             pass
 
     def get_items(self):
+        """
+        :rtype: object
+        """
         try:
             cur.execute("SELECT chats_id, chats_name FROM shiftyChats")
             conn.commit()
             rows = cur.fetchall()
             chats_id = rows[0]
             count = len(rows)
+
             return rows, chats_id, count
 
         except sqlite3.Error as er:

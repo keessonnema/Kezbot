@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import logging
-import pprint
 import re
 from random import randint
 from time import sleep
@@ -18,7 +17,7 @@ from database import DBHelper
 from config import Config
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from telegram.ext.dispatcher import run_async
-from telegram import MessageEntity, ParseMode, bot, TelegramError
+from telegram import MessageEntity, TelegramError
 from strings import MatchPattern, YoutubePattern, strips, split, RemoveWords, \
     KeepWords, StringRegex, run_strings
 
@@ -105,10 +104,9 @@ def getify(_bot, update):
 
 
 @run_async
-def search(bot, update, args):
-    chat_id = update.effective_chat.id
+def search(_bot, update, args):
     if len(args) == 0:
-        update.effective_message.reply_text("You forgot to give me a searchterm! \nTry again with: /sp "
+        update.effective_message.reply_text("You forgot to give me a searchterm! \nTry again with: /playlist "
                                             "<your searchterm>")
     else:
         sp = util.prompt_for_user_token(Config.username, Config.scope)
@@ -117,7 +115,7 @@ def search(bot, update, args):
             spot = spotipy.Spotify(auth=sp)
             results = spot.search(q="{}".format(text), limit=10, type="playlist")
 
-            playlist = ""
+            playlist = ''
             for item in results['playlists']['items']:
                 playlist += '\n► <a href="{0}">{1}</a> | {2} tracks' \
                     .format(item['external_urls']['spotify'], item['name'], item['tracks']['total'])
@@ -132,8 +130,8 @@ def search(bot, update, args):
 @run_async
 def start(_bot, update):
     update.effective_message.reply_text(
-        "Hello {}. I'm Shifty. Send me a Youtube-URL and I'll give you a Spotify-URL to that song!"
-            .format(update.message.from_user.first_name))
+        "Hello {}. I'm Shifty. Send me a Youtube-URL and I'll give you a Spotify-URL to that song!".format
+        (update.message.from_user.first_name))
 
 
 @run_async
@@ -172,29 +170,25 @@ def chats(_bot, update):
 @run_async
 def get_chats(bot, update):
     chat_id = update.effective_chat.id
-    get = db.get_items()
-    count = get[2]
-    if count == 0:
-        bot.send_message(chat_id=chat_id,
-                         text="I'm not in a group yet!",
-                         parse_mode=telegram.ParseMode.HTML)
-    else:
-        bot.send_message(chat_id=chat_id,
-                         text="I'm currently in {} groups".format(count),
-                         parse_mode=telegram.ParseMode.HTML)
+    get_items = db.get_items()
+    count = get_items[2]
+    bot.send_message(chat_id=chat_id,
+                     text="I'm currently in {} groups".format(count),
+                     parse_mode=telegram.ParseMode.HTML)
 
 
 @run_async
 def broadcast(bot, update):
+    global failed
     sender = update.message.from_user
     if sender.id == owner_id:
         to_send = update.effective_message.text.split(None, 2)
         if len(to_send) <= 2:
             get_message = to_send[1]
             if len(get_message) >= 2:
-                chats = db.get_items()
+                kez_chats = db.get_items()
                 failed = 0
-                for chat in chats[0]:
+                for chat in kez_chats[0]:
                     chat_id = str(chat[0])
                     chat_name = str(chat[1])
                     try:
@@ -205,11 +199,10 @@ def broadcast(bot, update):
                         print("Couldn't send broadcast to {}, group name {}".format(chat_id, chat_name),
                               file=sys.stderr)
         else:
-            get_id = to_send[1]
+            chat_id = to_send[1]
             get_message = to_send[2]
             if len(get_message) >= 2:
                 failed = 0
-                chat_id = get_id
                 try:
                     bot.sendMessage(int(chat_id), get_message)
                     sleep(0.1)
