@@ -1,4 +1,5 @@
-MatchPattern = '([a-z]+?:\/\/)*([a-z]*?[.])*youtu([.]be|be[.][a-z]+?)\/((watch[?]v=|v)*).+'
+YTMatchPattern = '([a-z]+?:\/\/)*([a-z]*?[.])*youtu([.]be|be[.][a-z]+?)\/((watch[?]v=|v)*).+'
+SPMatchPattern = '^(spotify:|https://[a-z]+\.spotify\.com/)'
 YoutubePattern = r'(?:https?:\/\/)?(?:[0-9A-Z-]+\.)?(?:youtube|youtu|youtube-nocookie)\.' \
                   r'(?:com|be)\/(?:watch\?v=|watch\?.+&v=|embed\/|v\/|.+\?v=)?([^&=\n%\?]{11})'
 
@@ -23,7 +24,8 @@ run_strings = (
     "You're gonna regret that...",
     "Go bother someone else, no-one here cares.",
     "I hear @MSFJarvis wants to hear more about you.",
-    "If you let my daughter go now, that'll be the end of it. I will not look for you, I will not pursue you. But if you don't, I will look for you, I will find you, and I will kill you.",
+    "If you let my daughter go now, that'll be the end of it. I will not look for you, I will not pursue you. \
+    But if you don't, I will look for you, I will find you, and I will kill you.",
     "I drink your milkshake!",
     "Go ahead, make my day.",
     "Hasta la vista, baby.",
