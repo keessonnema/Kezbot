@@ -5,7 +5,7 @@ import telegram
 from telegram import TelegramError
 from telegram.ext import run_async, CommandHandler, MessageHandler, Filters
 
-from kezbot.database import DBHelper
+from database import DBHelper
 from kezbot import Config
 from kezbot import dispatcher
 

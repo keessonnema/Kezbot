@@ -6,7 +6,7 @@ from telegram.ext import CommandHandler
 from telegram.ext.dispatcher import run_async
 
 from kezbot import dispatcher, updater, token
-from config import Config
+from kezbot.config import Config
 
 from kezbot.modules import ALL_MODULES
 
