@@ -95,4 +95,4 @@ def get_sp_url(_bot, update):
 __mod_name__ = "getSpotify"
 
 FILTER_YT_URL = MessageHandler(Filters.text & Filters.entity(MessageEntity.URL), get_sp_url)
-dispatcher.add_handler(FILTER_YT_URL, group=0)
+dispatcher.add_handler(FILTER_YT_URL, group=3)
