@@ -8,7 +8,7 @@ from telegram.ext.dispatcher import run_async
 from kezbot import dispatcher, updater, token
 from config import Config
 
-from modules import ALL_MODULES
+from kezbot.modules import ALL_MODULES
 
 owner_id = int(Config.OWNER_ID)  # Telegram user ID
 IMPORTED = {}
