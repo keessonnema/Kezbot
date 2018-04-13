@@ -2,29 +2,21 @@
 # -*- coding: utf-8 -*-
 import importlib
 import logging
+
 from telegram.ext import CommandHandler
 from telegram.ext.dispatcher import run_async
 
 from kezbot import dispatcher, updater, token
-from kezbot.config import Config
+from config import Config
+from modules import ALL_MODULES
 
-from kezbot.modules import ALL_MODULES
-
-owner_id = int(Config.OWNER_ID)  # Telegram user ID
+OWNER = int(Config.OWNER_ID)  # Telegram user ID
 IMPORTED = {}
-BOT_STATS = {}
-GET_ID = {}
-GET_IP = {}
-GET_PLAYLIST = {}
-RUNS = {}
-FILTER_YT_URL = {}
-FILTER_SP_URL = {}
 
 for module_name in ALL_MODULES:
     imported_module = importlib.import_module("kezbot.modules." + module_name)
     if not hasattr(imported_module, "__mod_name__"):
         imported_module.__mod_name__ = imported_module.__name__
-
     if not imported_module.__mod_name__.lower() in IMPORTED:
         IMPORTED[imported_module.__mod_name__.lower()] = imported_module
     else:

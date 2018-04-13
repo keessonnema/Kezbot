@@ -2,7 +2,7 @@ import logging
 import os
 
 import telegram.ext as tg
-from kezbot.config import Config
+from config import Config
 
 # enable logging
 logging.basicConfig(

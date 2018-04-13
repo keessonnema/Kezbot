@@ -35,7 +35,7 @@ class DBHelper:
 
 
 conn = sqlite3.connect('chats.db', check_same_thread=False)
-print('Opened database successfully')
+# print('Opened database successfully')
 
 conn.execute('''CREATE TABLE IF NOT EXISTS shiftyChats 
             (chats_id int NOT NULL, 

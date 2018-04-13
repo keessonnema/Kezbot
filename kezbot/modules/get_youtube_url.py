@@ -55,4 +55,4 @@ def get_yt_url(_bot, update):
 __mod_name__ = "getYoutube"
 
 FILTER_YT_URL = MessageHandler(Filters.text & Filters.entity(MessageEntity.URL), get_yt_url)
-dispatcher.add_handler(FILTER_YT_URL, group=4)
+dispatcher.add_handler(FILTER_YT_URL, group=2)
