@@ -38,7 +38,7 @@ def broadcast(bot, update):
     sender = update.message.from_user
     if sender.id == OWNER:
         toSend = update.effective_message.text.split(None, 2)
-        if len(toSend) <= 2:
+        if len(toSend) <= 1:
             get_message = toSend[1]
             if len(get_message) >= 2:
                 kezChats = db.get_items()
