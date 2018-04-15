@@ -11,5 +11,7 @@ def runs(_bot, update):
     update.effective_message.reply_text(run_strings[start_running])
 
 
+__mod_name__ = "Runs"
+
 RUNS = CommandHandler('runs', runs)
 dispatcher.add_handler(RUNS)

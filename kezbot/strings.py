@@ -1,7 +1,10 @@
-YTMatchPattern = '([a-z]+?:\/\/)*([a-z]*?[.])*youtu([.]be|be[.][a-z]+?)\/((watch[?]v=|v)*).+'
+YTMatchPattern = '(?:https?:\/\/)?(?:i\.|www\.|img\.)?(?:youtu\.be\/|youtube\.com\/|ytimg\.com\/)(?:embed\/|v\/|vi\/|' \
+                 'vi_webp\/|watch\?v=|watch\?.+&v=)((\w|-){11})(?:\S+)?'
 SPMatchPattern = '^(spotify:|https://[a-z]+\.spotify\.com/)'
+
 YoutubePattern = r'(?:https?:\/\/)?(?:[0-9A-Z-]+\.)?(?:youtube|youtu|youtube-nocookie)\.' \
                   r'(?:com|be)\/(?:watch\?v=|watch\?.+&v=|embed\/|v\/|.+\?v=)?([^&=\n%\?]{11})'
+SpotifyPattern = r'(?:https?:\/\/(?:embed\.|open\.)(?:spotify\.com\/)(?:track\/|\?uri=spotify:track:)((\w|-){22}))'
 
 strips = [' - ', '- ', ' -', ' – ']
 split = ' - |- | -| – '

@@ -4,3 +4,4 @@ config.py
 *.pyc
 .cache-keessonnema
 *.out
+chats.db

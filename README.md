@@ -1,12 +1,20 @@
 # Kezbot
-A Telegram bot that provides Spotify-URLs from Youtube-URLs
+Kezbot (or [Shifty](https://t.me/Kezbot) on Telegram) is a modular Python Telegram bot that helps you find Spotify/Youtube songs based on the Youtube/Spotify url you sent to it. It basically gives you a different link of the song you send to the bot.
 
-- Youtube titles without a hyphen (-) will give no results.
-A Youtube video title MUST in every case have a hyphen between the Artist and the Title of a video.
-- If a track is simply missing on Spotify the bot will reply with a message that it couldn't find that song.
-- Any kind of Youtube-URL will work (youtube.com?watch=v, youtu.be/v, youtu.be/, youtube.com/embed/, etc)
-- If a Youtube title includes parentheses containing the words 'remix' or 'edit' it will search for that
-particular remix or edit. If there's something else between parentheses the parentheses including that text will be
-removed to widen search.
+# What can this bot do?
+1. Give you a Spotify url from a Youtube url you send to the bot.
+2. Give you a Youtube url from a Spotify url you send to the bot.
+3. Give you a top10 list of playlists for a certain searchterm.
+4. Give you your Telegram-ID.
+5. More features will be added in the future.
 
-If you have any questions about this bot feel free to send me a message on Telegram (@keessonnema)
+
+# Contributing
+Contributions are more than welcome. I still want to add features for other platforms (Deezer, Soundcloud, Google Play Music, etc)
+- contributions in the form of a pull-request have to be well-described for me to understand what you want.
+- Join the [development group](https://t.me/KezbotSupport) on Telegram
+
+# NOTE
+I'm highly against piracy and illegal music downloading. Contributions containing such features will completely be ignored and future contributions by you will also be ignored.
+
+If you have any questions about this bot feel free to join the [development group](https://t.me/KezbotSupport) on Telegram.

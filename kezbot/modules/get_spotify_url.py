@@ -16,22 +16,22 @@ from kezbot.strings import YTMatchPattern, YoutubePattern, strips, split, Remove
 @run_async
 def get_sp_url(_bot, update):
     api = Config.YOUTUBE_API_KEY
-    get_text = update.effective_message.parse_entities \
+    getText = update.effective_message.parse_entities \
         (types=[MessageEntity.URL, MessageEntity.TEXT_LINK])
-    yt_url = ''.join(list([y if t.type == MessageEntity.URL
-                           else t.url for t, y in get_text.items()][0]))
+    ytUrl = ''.join(list([y if t.type == MessageEntity.URL
+                          else t.url for t, y in getText.items()][0]))
     pattern = YTMatchPattern
 
-    if re.match(pattern, yt_url, re.I):
-        yt_link = yt_url
+    if re.match(pattern, ytUrl, re.I):
+        ytLink = ytUrl
         pattern = YoutubePattern
-        yt_id = ' '.join(re.findall(pattern, yt_link, re.MULTILINE | re.IGNORECASE))
+        ytId = ' '.join(re.findall(pattern, ytLink, re.MULTILINE | re.IGNORECASE))
 
-        if not yt_id:
+        if not ytId:
             update.effective_message.reply_text("This is not a valid Youtube-URL! \nTry again.")
         else:
             url = "https://www.googleapis.com/youtube/v3/videos?part=snippet&id={0}&key={1}" \
-                .format(yt_id, api)
+                .format(ytId, api)
             title = ujson.loads(requests.get(url).text)
             title = title['items'][0]['snippet']['title']  # get title from Youtube
 
@@ -48,41 +48,41 @@ def get_sp_url(_bot, update):
                         result = re.sub(re.escape(m.group()), '', result)
                 result = re.sub(StringRegex, '', result).strip()
                 result = ' '.join(result.split())
-                new_list = list(filter(None, re.split(split, result)))
+                newList = list(filter(None, re.split(split, result)))
 
-                first = new_list[0]
+                first = newList[0]
                 sep = 'aka'
                 sep2 = 'AKA'
-                new_list[0] = first.split(sep, 1)[0]
-                new_list[0] = first.split(sep2, 1)[0]
+                newList[0] = first.split(sep, 1)[0]
+                newList[0] = first.split(sep2, 1)[0]
 
-                spotify_token = util.prompt_for_user_token(Config.username, Config.scope)
+                spotifyToken = util.prompt_for_user_token(Config.username, Config.scope)
 
-                if spotify_token:
-                    spot = spotipy.Spotify(auth=spotify_token)
-                    artist = new_list[0]
-                    track = new_list[1]
+                if spotifyToken:
+                    spot = spotipy.Spotify(auth=spotifyToken)
+                    artist = newList[0]
+                    track = newList[1]
 
                     results = spot.search(q="artist:{} track:{}".format(artist, track, limit=1))
 
                     if results:
-                        spottracks = results['tracks']['items']
-                        if spottracks:
-                            spotartist = spottracks[0]['artists'][0]['name']
-                            spottitle = spottracks[0]['name']
-                            spoturl = spottracks[0]['external_urls']['spotify']
+                        spotTracks = results['tracks']['items']
+                        if spotTracks:
+                            spotArtist = spotTracks[0]['artists'][0]['name']
+                            spotTitle = spotTracks[0]['name']
+                            spotUrl = spotTracks[0]['external_urls']['spotify']
                             update.effective_message.reply_text \
-                                ("► {0} - {1} \n{2}".format(spotartist, spottitle, spoturl))
+                                ("► {0} - {1} \n{2}".format(spotArtist, spotTitle, spotUrl))
                         else:
                             results = spot.search(q="artist:{} track:{}"
                                                   .format(track, artist, limit=1))
-                            spottracks = results['tracks']['items']
-                            if spottracks:
-                                spotartist = spottracks[0]['artists'][0]['name']
-                                spottitle = spottracks[0]['name']
-                                spoturl = spottracks[0]['external_urls']['spotify']
+                            spotTracks = results['tracks']['items']
+                            if spotTracks:
+                                spotArtist = spotTracks[0]['artists'][0]['name']
+                                spotTitle = spotTracks[0]['name']
+                                spotUrl = spotTracks[0]['external_urls']['spotify']
                                 update.effective_message.reply_text \
-                                    ("► {0} - {1} \n{2}".format(spotartist, spottitle, spoturl))
+                                    ("► {0} - {1} \n{2}".format(spotArtist, spotTitle, spotUrl))
                             else:
                                 if update.message.chat.type == "private":
                                     update.effective_message.reply_text \
@@ -95,4 +95,4 @@ def get_sp_url(_bot, update):
 __mod_name__ = "getSpotify"
 
 FILTER_YT_URL = MessageHandler(Filters.text & Filters.entity(MessageEntity.URL), get_sp_url)
-dispatcher.add_handler(FILTER_YT_URL, group=0)
+dispatcher.add_handler(FILTER_YT_URL, group=3)
