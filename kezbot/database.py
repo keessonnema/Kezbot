@@ -4,42 +4,39 @@ import sqlite3
 
 class DBHelper:
 
-    def add_item(self, chat_id, chat_name):
+    @staticmethod
+    def add_item(chat_id, chat_name):
         add_list = list((chat_id, chat_name))
         try:
-            sql = ''' REPLACE INTO shiftyChats (chats_id, chats_name) 
-                          VALUES(?,?)'''
-            cur = conn.cursor()
-            cur.execute(sql, add_list)
+            sql = ''' REPLACE INTO shiftyChats (chats_id, chats_name) VALUES (?,?) '''
+            cursor.execute(sql, add_list)
             conn.commit()
-            row = cur.lastrowid
-            return row
+            rowId = cursor.lastrowid
+
+            return rowId
+
         except sqlite3.Error:
             pass
 
-    def get_items(self):
-        """
-        :rtype: object
-        """
+    @staticmethod
+    def get_items():
         try:
-            cur.execute("SELECT chats_id, chats_name FROM shiftyChats")
+            cursor.execute("SELECT chats_id, chats_name FROM shiftyChats")
             conn.commit()
-            rows = cur.fetchall()
-            chats_id = rows[0]
-            count = len(rows)
+            allRecords = cursor.fetchall()
+            chatsId = allRecords[0]
+            countAll = len(allRecords)
 
-            return rows, chats_id, count
+            return allRecords, chatsId, countAll
 
         except sqlite3.Error as er:
-            print('er:', er)
+            print('error:', er)
 
 
 conn = sqlite3.connect('chats.db', check_same_thread=False)
-# print('Opened database successfully')
-
 conn.execute('''CREATE TABLE IF NOT EXISTS shiftyChats 
-            (chats_id int NOT NULL, 
-            chats_name int NOT NULL,
-            UNIQUE(chats_id));''')
+                (chats_id int NOT NULL, 
+                chats_name int NOT NULL,
+                UNIQUE(chats_id));''')
 
-cur = conn.cursor()
+cursor = conn.cursor()

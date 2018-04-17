@@ -15,7 +15,6 @@ def __list_all_modules():
         if to_load:
             if not all(any(mod == module_name for module_name in all_modules) for mod in to_load):
                 quit(1)
-
         else:
             to_load = all_modules
 

@@ -10,11 +10,12 @@ from kezbot import dispatcher, updater, token
 from kezbot.config import Config
 from kezbot.modules import ALL_MODULES
 
-OWNER = int(Config.OWNER_ID)  # Telegram user ID
+OWNER = int(Config.OWNER_ID)
 IMPORTED = {}
 
 for module_name in ALL_MODULES:
     imported_module = importlib.import_module("kezbot.modules." + module_name)
+
     if not hasattr(imported_module, "__mod_name__"):
         imported_module.__mod_name__ = imported_module.__name__
     if not imported_module.__mod_name__.lower() in IMPORTED:
@@ -31,8 +32,7 @@ def start(_bot, update):
 
 
 def main():
-    logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-                        level=logging.WARNING)
+    logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.WARNING)
 
     START_BOT = CommandHandler('start', start)
     dispatcher.add_handler(START_BOT)
@@ -40,10 +40,8 @@ def main():
     if Config.use_webhooks:
         cert_pem = Config.cert_pem
         webhook_url = Config.webhook_url
-
         updater.start_webhook(listen='127.0.0.1', port=5000, url_path=token)
-        updater.bot.set_webhook(url=webhook_url + token,
-                                certificate=open(cert_pem, 'rb'))
+        updater.bot.set_webhook(url=webhook_url + token, certificate=open(cert_pem, 'rb'))
     else:
         updater.start_polling(poll_interval=1.0, timeout=20)
 

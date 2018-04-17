@@ -12,10 +12,10 @@ def search(_bot, update, args):
         update.effective_message.reply_text("You forgot to give me a searchterm! \nTry again with: /playlist "
                                             "<your searchterm>")
     else:
-        sp = util.prompt_for_user_token(Config.username, Config.scope)
-        if sp:
+        spot = util.prompt_for_user_token(Config.username, Config.scope)
+        if spot:
             text = ' '.join(args)
-            spot = spotipy.Spotify(auth=sp)
+            spot = spotipy.Spotify(auth=spot)
             results = spot.search(q="{}".format(text), limit=10, type="playlist")
 
             playlist = ''
