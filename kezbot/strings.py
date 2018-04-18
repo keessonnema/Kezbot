@@ -1,4 +1,5 @@
-YTMatchPattern = '([a-z]+?:\/\/)*([a-z]*?[.])*youtu([.]be|be[.][a-z]+?)\/((watch[?]v=|v)*).+'
+YTMatchPattern = '(?:https?:\/\/)?(?:i\.|www\.|img\.)?(?:youtu\.be\/|youtube\.com\/|ytimg\.com\/)(?:embed\/|v\/|vi\/|' \
+                 'vi_webp\/|watch\?v=|watch\?.+&v=)((\w|-){11})(?:\S+)?'
 SPMatchPattern = '^(spotify:|https://[a-z]+\.spotify\.com/)'
 
 YoutubePattern = r'(?:https?:\/\/)?(?:[0-9A-Z-]+\.)?(?:youtube|youtu|youtube-nocookie)\.' \
