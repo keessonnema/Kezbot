@@ -15,34 +15,39 @@ from kezbot.strings import SPMatchPattern, SpotifyPattern
 
 @run_async
 def get_yt_url(_bot, update):
-    getMessage = update.effective_message.parse_entities(types=[MessageEntity.URL, MessageEntity.TEXT_LINK])
-    spotifyUrl = ''.join(list([y if t.type == MessageEntity.URL else t.url for t, y in getMessage.items()][0]))
+    getText = update.effective_message.parse_entities \
+        (types=[MessageEntity.URL, MessageEntity.TEXT_LINK])
+    spUrl = ''.join(list([y if t.type == MessageEntity.URL
+                          else t.url for t, y in getText.items()][0]))
 
-    if re.match(SPMatchPattern, spotifyUrl, re.I):
-        spotifyId = re.findall(SpotifyPattern, spotifyUrl, re.MULTILINE | re.IGNORECASE)
+    pattern = SPMatchPattern
+    if re.match(pattern, spUrl, re.I):
+        pattern = SpotifyPattern
+        spId = re.findall(pattern, spUrl, re.MULTILINE | re.IGNORECASE)
 
-        if not spotifyId:
+        if not spId:
             update.effective_message.reply_text("This is not a valid Spotify-URL! \nTry again.")
         else:
             spotifyToken = util.prompt_for_user_token(Config.username, Config.scope)
             if spotifyToken:
                 spot = spotipy.Spotify(auth=spotifyToken)
-                getSong = spot.track(spotifyId[0][0])
+                track = spot.track(spId[0][0])
 
-                artist = getSong['artists'][0]['name']
-                track = re.sub('- ', '', getSong['name'])
+                artist = track['artists'][0]['name']
+                track = track['name']
+                track = re.sub('- ', '', track)
                 title = ''.join(artist + ' - ' + track)
 
-                API = Config.YOUTUBE_API_KEY
+                key = Config.YOUTUBE_API_KEY
                 url = ("https://www.googleapis.com/youtube/v3/search?part=snippet&q={0}&key={1}"
-                       .format(str(title), API))
+                       .format(str(title), key))
 
                 videoInfo = ujson.loads(requests.get(url).text)
                 if 'videoId' in videoInfo['items'][0]['id']:
                     getVideoId = re.sub("'", '', videoInfo['items'][0]['id']['videoId'])
                     videoUrl = ("https://youtube.com/watch?v={0}".format(getVideoId))
-                    videoTitle = re.sub("'", '', videoInfo['items'][0]['snippet']['title'])
-                    update.effective_message.reply_text("► {0} \n{1}".format(videoTitle, videoUrl))
+                    update.effective_message.reply_text \
+                        ("► {0} - {1} \n{2}".format(artist, track, videoUrl))
                 else:
                     print('No videoId!')
 

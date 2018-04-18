@@ -15,21 +15,25 @@ from kezbot.strings import YTMatchPattern, YoutubePattern, strips, split, Remove
 
 @run_async
 def get_sp_url(_bot, update):
-    API = Config.YOUTUBE_API_KEY
-    getMessage = update.effective_message.parse_entities \
+    api = Config.YOUTUBE_API_KEY
+    getText = update.effective_message.parse_entities \
         (types=[MessageEntity.URL, MessageEntity.TEXT_LINK])
-    youtubeUrl = ''.join(list([y if t.type == MessageEntity.URL
-                               else t.url for t, y in getMessage.items()][0]))
+    ytUrl = ''.join(list([y if t.type == MessageEntity.URL
+                          else t.url for t, y in getText.items()][0]))
+    pattern = YTMatchPattern
 
-    if re.match(YTMatchPattern, youtubeUrl, re.I):
-        youtubeId = ' '.join(re.findall(YoutubePattern, youtubeUrl, re.MULTILINE | re.IGNORECASE))
-        if not youtubeId:
+    if re.match(pattern, ytUrl, re.I):
+        ytLink = ytUrl
+        pattern = YoutubePattern
+        ytId = ' '.join(re.findall(pattern, ytLink, re.MULTILINE | re.IGNORECASE))
+
+        if not ytId:
             update.effective_message.reply_text("This is not a valid Youtube-URL! \nTry again.")
         else:
-            apiUrl = "https://www.googleapis.com/youtube/v3/videos?part=snippet&id={0}&key={1}" \
-                .format(youtubeId, API)
-            getResult = ujson.loads(requests.get(apiUrl).text)
-            title = getResult['items'][0]['snippet']['title']
+            url = "https://www.googleapis.com/youtube/v3/videos?part=snippet&id={0}&key={1}" \
+                .format(ytId, api)
+            title = ujson.loads(requests.get(url).text)
+            title = title['items'][0]['snippet']['title']  # get title from Youtube
 
             if not any(e in title for e in strips):
                 if update.message.chat.type == "private":
@@ -42,22 +46,23 @@ def get_sp_url(_bot, update):
                 for m in re.finditer(r'\([^()]+\)', result):
                     if not re.search(KeepWords, m.group(), re.I):
                         result = re.sub(re.escape(m.group()), '', result)
-
                 result = re.sub(StringRegex, '', result).strip()
                 result = ' '.join(result.split())
-                splitTitle = list(filter(None, re.split(split, result)))
+                newList = list(filter(None, re.split(split, result)))
 
-                artist = splitTitle[0]
-                track = splitTitle[1]
-
-                sepList = ['aka', 'AKA']
-                for sep in sepList:
-                    artist = artist.split(sep, 1)[0]
+                first = newList[0]
+                sep = 'aka'
+                sep2 = 'AKA'
+                newList[0] = first.split(sep, 1)[0]
+                newList[0] = first.split(sep2, 1)[0]
 
                 spotifyToken = util.prompt_for_user_token(Config.username, Config.scope)
 
                 if spotifyToken:
                     spot = spotipy.Spotify(auth=spotifyToken)
+                    artist = newList[0]
+                    track = newList[1]
+
                     results = spot.search(q="artist:{} track:{}".format(artist, track, limit=1))
 
                     if results:
