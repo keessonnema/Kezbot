@@ -4,8 +4,7 @@ import sqlite3
 
 class DBHelper:
 
-    @staticmethod
-    def add_item(chat_id, chat_name):
+    def add_item(self, chat_id, chat_name):
         add_list = list((chat_id, chat_name))
         try:
             sql = '''REPLACE INTO shiftyChats (chats_id, chats_name) VALUES(?,?)'''
@@ -17,8 +16,7 @@ class DBHelper:
         except sqlite3.Error:
             pass
 
-    @staticmethod
-    def get_chat_count():
+    def get_chat_count(self):
         try:
             CURSOR.execute("SELECT chats_id, chats_name FROM shiftyChats")
             CONN.commit()
@@ -30,8 +28,7 @@ class DBHelper:
         except sqlite3.Error as er:
             print('error:', er)
 
-    @staticmethod
-    def get_chat_names():
+    def get_chat_names(self):
         try:
             CURSOR.execute("SELECT chats_name FROM shiftyChats")
             CONN.commit()

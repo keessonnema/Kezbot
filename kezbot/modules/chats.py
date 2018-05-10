@@ -23,7 +23,7 @@ def get_chat_count(bot, update):
     user_id = update.effective_user.id
     if user_id == OWNER:
         chat_id = update.effective_chat.id
-        get_items = db.get_chat_count()
+        get_items = db.get_chat_count
         count = get_items[2]
         bot.send_message(chat_id=chat_id,
                          text="I'm currently in {} groups".format(count),
