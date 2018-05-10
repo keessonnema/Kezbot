@@ -12,11 +12,11 @@ def search(_bot, update, args):
         update.effective_message.reply_text("You forgot to give me a searchterm! \nTry again with: /playlist "
                                             "<your searchterm>")
     else:
-        sp = util.prompt_for_user_token(Config.username, Config.scope)
-        if sp:
+        spotify_token = util.prompt_for_user_token(Config.USERNAME, Config.SCOPE)
+        if spotify_token:
             text = ' '.join(args)
-            spot = spotipy.Spotify(auth=sp)
-            results = spot.search(q="{}".format(text), limit=10, type="playlist")
+            spotify = spotipy.Spotify(auth=spotify_token)
+            results = spotify.search(q="{}".format(text), limit=10, type="playlist")
 
             playlist = ''
             for item in results['playlists']['items']:
@@ -27,10 +27,10 @@ def search(_bot, update, args):
                                                 "{1}".format(text, playlist),
                                                 parse_mode=telegram.ParseMode.HTML, disable_web_page_preview=True)
         else:
-            print("There's something wrong with the Spotify token")
+            print("There's something wrong with the token")
 
 
-__mod_name__ = "Playlists"
+__mod_name__ = "playlists"
 
 GET_PLAYLIST = CommandHandler("playlist", search, pass_args=True)
 dispatcher.add_handler(GET_PLAYLIST)

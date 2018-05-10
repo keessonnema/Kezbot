@@ -1,4 +1,5 @@
-from random import randint
+import random
+
 from telegram.ext import run_async, CommandHandler
 from kezbot.strings import run_strings
 
@@ -7,11 +8,10 @@ from kezbot import dispatcher
 
 @run_async
 def runs(_bot, update):
-    start_running = randint(0, len(run_strings) - 1)
-    update.effective_message.reply_text(run_strings[start_running])
+    update.effective_message.reply_text(random.choice(run_strings))
 
 
-__mod_name__ = "Runs"
+__mod_name__ = "runs"
 
 RUNS = CommandHandler('runs', runs)
 dispatcher.add_handler(RUNS)

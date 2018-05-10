@@ -10,49 +10,45 @@ from telegram.ext.dispatcher import run_async
 
 from kezbot import dispatcher
 from kezbot.config import Config
-from kezbot.strings import SPMatchPattern, SpotifyPattern
+from kezbot.strings import sp_match_pattern, spotify_pattern
 
 
 @run_async
 def get_yt_url(_bot, update):
-    getText = update.effective_message.parse_entities \
-        (types=[MessageEntity.URL, MessageEntity.TEXT_LINK])
-    spUrl = ''.join(list([y if t.type == MessageEntity.URL
-                          else t.url for t, y in getText.items()][0]))
+    message = update.effective_message.parse_entities(types=[MessageEntity.URL, MessageEntity.TEXT_LINK])
+    spotify_url = ''.join(list([y if t.type == MessageEntity.URL else t.url for t, y in message.items()][0]))
 
-    pattern = SPMatchPattern
-    if re.match(pattern, spUrl, re.I):
-        pattern = SpotifyPattern
-        spId = re.findall(pattern, spUrl, re.MULTILINE | re.IGNORECASE)
-
-        if not spId:
+    if re.match(sp_match_pattern, spotify_url, re.I):
+        spotify_id = re.findall(spotify_pattern, spotify_url, re.MULTILINE | re.IGNORECASE)
+        if not spotify_id:
             update.effective_message.reply_text("This is not a valid Spotify-URL! \nTry again.")
         else:
-            spotifyToken = util.prompt_for_user_token(Config.username, Config.scope)
-            if spotifyToken:
-                spot = spotipy.Spotify(auth=spotifyToken)
-                track = spot.track(spId[0][0])
+            spotify_token = util.prompt_for_user_token(Config.USERNAME, Config.SCOPE)
+            if spotify_token:
+                spotify = spotipy.Spotify(auth=spotify_token)
+                result = spotify.track(spotify_id[0][0])
 
-                artist = track['artists'][0]['name']
-                track = track['name']
-                track = re.sub('- ', '', track)
+                artist = result['artists'][0]['name']
+                track = re.sub('- ', '', result['name'])
                 title = ''.join(artist + ' - ' + track)
 
-                key = Config.YOUTUBE_API_KEY
-                url = ("https://www.googleapis.com/youtube/v3/search?part=snippet&q={0}&key={1}"
-                       .format(str(title), key))
+                youtube_key = Config.YOUTUBE_API_KEY
+                youtube_url = ("https://www.googleapis.com/youtube/v3/search?part=snippet&q={0}&key={1}"
+                               .format(str(title), youtube_key))
+                video_info = ujson.loads(requests.get(youtube_url).text)
 
-                videoInfo = ujson.loads(requests.get(url).text)
-                if 'videoId' in videoInfo['items'][0]['id']:
-                    getVideoId = re.sub("'", '', videoInfo['items'][0]['id']['videoId'])
-                    videoUrl = ("https://youtube.com/watch?v={0}".format(getVideoId))
+                if 'videoId' in video_info['items'][0]['id']:
+                    get_video_id = re.sub("'", '', video_info['items'][0]['id']['videoId'])
+                    video_url = ("https://youtube.com/watch?v={0}".format(get_video_id))
                     update.effective_message.reply_text \
-                        ("► {0} - {1} \n{2}".format(artist, track, videoUrl))
+                        ("► {0} - {1} \n{2}".format(artist, track, video_url))
                 else:
                     print('No videoId!')
+            else:
+                print("There's something wrong with the token.")
 
 
-__mod_name__ = "getYoutube"
+__mod_name__ = "get_youtube"
 
 FILTER_YT_URL = MessageHandler(Filters.text & Filters.entity(MessageEntity.URL), get_yt_url)
 dispatcher.add_handler(FILTER_YT_URL, group=2)

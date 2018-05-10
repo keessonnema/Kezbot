@@ -4,42 +4,47 @@ import sqlite3
 
 class DBHelper:
 
-    def add_item(self, chat_id, chat_name):
+    @staticmethod
+    def add_item(chat_id, chat_name):
         add_list = list((chat_id, chat_name))
         try:
-            sql = ''' REPLACE INTO shiftyChats (chats_id, chats_name) 
-                          VALUES(?,?)'''
-            cur = conn.cursor()
-            cur.execute(sql, add_list)
-            conn.commit()
-            row = cur.lastrowid
-            return row
+            sql = '''REPLACE INTO shiftyChats (chats_id, chats_name) VALUES(?,?)'''
+            CURSOR.execute(sql, add_list)
+            CONN.commit()
+            last_row = CURSOR.lastrowid
+
+            return last_row
         except sqlite3.Error:
             pass
 
-    def get_items(self):
-        """
-        :rtype: object
-        """
+    @staticmethod
+    def get_chat_count():
         try:
-            cur.execute("SELECT chats_id, chats_name FROM shiftyChats")
-            conn.commit()
-            rows = cur.fetchall()
-            chats_id = rows[0]
-            count = len(rows)
+            CURSOR.execute("SELECT chats_id, chats_name FROM shiftyChats")
+            CONN.commit()
+            all_rows = CURSOR.fetchall()
+            chats_id = all_rows[0]
+            count_rows = len(all_rows)
 
-            return rows, chats_id, count
-
+            return all_rows, chats_id, count_rows
         except sqlite3.Error as er:
-            print('er:', er)
+            print('error:', er)
+
+    @staticmethod
+    def get_chat_names():
+        try:
+            CURSOR.execute("SELECT chats_name FROM shiftyChats")
+            CONN.commit()
+            all_rows = CURSOR.fetchall()
+
+            return all_rows
+        except sqlite3.Error as er:
+            print('error:', er)
 
 
-conn = sqlite3.connect('chats.db', check_same_thread=False)
-# print('Opened database successfully')
-
-conn.execute('''CREATE TABLE IF NOT EXISTS shiftyChats 
+CONN = sqlite3.connect('chats.db', check_same_thread=False)
+CONN.execute('''CREATE TABLE IF NOT EXISTS shiftyChats 
             (chats_id int NOT NULL, 
             chats_name int NOT NULL,
             UNIQUE(chats_id));''')
-
-cur = conn.cursor()
+CURSOR = CONN.cursor()

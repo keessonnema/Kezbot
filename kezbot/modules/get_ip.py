@@ -3,7 +3,7 @@ from telegram.ext import run_async, CommandHandler
 from kezbot import Config
 from kezbot import dispatcher
 
-OWNER = int(Config.OWNER_ID)  # Telegram user ID
+OWNER = int(Config.OWNER_ID)
 
 
 @run_async
@@ -13,10 +13,10 @@ def get_ip(_bot, update):
         ip = requests.get("http://ipinfo.io/ip")
         update.message.reply_text(ip.text)
     else:
-        update.message.reply_text("Sorry mate, can't do that.")
+        update.message.reply_text("Sorry mate, only my owner can use this command.")
 
 
-__mod_name__ = "GetIp"
+__mod_name__ = "get_ip"
 
 GET_IP = CommandHandler("ip", get_ip)
 dispatcher.add_handler(GET_IP)
