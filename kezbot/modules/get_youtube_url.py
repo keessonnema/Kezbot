@@ -30,7 +30,7 @@ def get_yt_url(_bot, update):
 
                 artist = result['artists'][0]['name']
                 track = re.sub('- ', '', result['name'])
-                title = ''.join(artist + ' - ' + track)
+                title = ''.join(artist.replace('&', '') + ' - ' + track)
 
                 youtube_key = Config.YOUTUBE_API_KEY
                 youtube_url = ("https://www.googleapis.com/youtube/v3/search?part=snippet&q={0}&key={1}"
