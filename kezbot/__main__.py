@@ -39,10 +39,9 @@ def main():
     dispatcher.add_handler(START_BOT)
 
     if Config.USE_WEBHOOKS:
-        CERT_PEM = Config.CERT_PEM
         WEBHOOK_URL = Config.WEBHOOK_URL
-        updater.start_webhook(listen='127.0.0.1', port=5001, url_path=TOKEN)
-        updater.bot.set_webhook(url=WEBHOOK_URL + TOKEN, certificate=open(CERT_PEM, 'rb'))
+        updater.start_webhook(listen='127.0.0.1', port=5000, url_path=TOKEN)
+        updater.bot.set_webhook(url=WEBHOOK_URL + TOKEN)
     else:
         updater.start_polling(poll_interval=1.0, timeout=20)
 
