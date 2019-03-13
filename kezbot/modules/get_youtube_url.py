@@ -20,9 +20,7 @@ def get_yt_url(_bot, update):
 
     if re.match(sp_match_pattern, spotify_url, re.I):
         spotify_id = re.findall(spotify_pattern, spotify_url, re.MULTILINE | re.IGNORECASE)
-        if not spotify_id:
-            update.effective_message.reply_text("This is not a valid Spotify-URL! \nTry again.")
-        else:
+        if spotify_id:
             spotify_token = util.prompt_for_user_token(Config.USERNAME, Config.SCOPE)
             if spotify_token:
                 spotify = spotipy.Spotify(auth=spotify_token)
