@@ -39,7 +39,7 @@ def get_yt_url(_bot, update):
                     get_video_id = re.sub("'", '', video_info['items'][0]['id']['videoId'])
                     video_url = ("https://youtube.com/watch?v={0}".format(get_video_id))
                     update.effective_message.reply_text \
-                        ("► {0} - {1} \n{2}".format(artist, track, video_url))
+                        ("► {0} - {1} \n{2}".format(artist, track, video_url), disable_web_page_preview=True)
                 else:
                     print('No videoId!')
             else:
