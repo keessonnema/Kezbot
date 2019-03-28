@@ -69,7 +69,7 @@ def get_sp_url(_bot, update):
                             spot_title = spot_tracks[0]['name']
                             spot_url = spot_tracks[0]['external_urls']['spotify']
                             update.effective_message.reply_text \
-                                ("► {0} - {1} \n{2}".format(spot_artist, spot_title, spot_url))
+                                ("► {0} - {1} \n{2}".format(spot_artist, spot_title, spot_url), disable_web_page_preview=True)
                         else:
                             results = spotify.search(q="artist:{} track:{}".format(track, artist, limit=1))
                             spot_tracks = results['tracks']['items']
