@@ -3,9 +3,9 @@
 [![Telegram Bot](https://img.shields.io/badge/Telegram-Bot-blue.svg)](https://t.me/Kezbot)
 [![Python](https://img.shields.io/badge/Python-3.x-green.svg)](https://www.python.org)
 
-[!WARNING]
-Project Status: Unmaintained
-This repository is currently not actively maintained and has not been updated for several years. While it remains popular and the codebase serves as a great reference, please note that some dependencies may be outdated or require manual fixes.
+> [!WARNING]
+> **Project Status: Unmaintained**
+> This repository is currently not actively maintained and has not been updated for several years. While it remains popular and the codebase serves as a solid reference, please note that some dependencies or API integrations may be outdated or require manual adjustments to run.
 
 **Kezbot** (known as [@Kezbot / Shifty](https://t.me/Kezbot) on Telegram) is a modular, open-source Python Telegram bot designed to bridge the gap between streaming platforms. Send it a link from YouTube or Spotify, and Kezbot will instantly find and return the equivalent link on the alternative platform. 
 
